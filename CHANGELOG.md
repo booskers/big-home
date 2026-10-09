@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.10.2 (2026-10-09)
+
+- With the Lupe switched on, the row of buttons no longer breaks: the big buttons (Taschenlampe, Lupe, Alle Apps;
+  the helpers; Mir geht's gut and Hilfe) now sit two to a row at equal width, and a third gets its own full row.
+- The Lupe screen: all controls in one clear panel at the bottom, each at least 72 px high and labelled with words.
+- Checked on four screen widths (360 to 810 px) and three sizes: nothing runs off the screen, no text is cut off,
+  every button is at least 44 pt (Apple's minimum). Menus never get smaller than 100 %, the PIN pad fits at 150 %,
+  names and labels stay at least 16–17 px, and white text on the glass meets WCAG AA contrast on any wallpaper.
+
 ## 1.10.1 (2026-10-09)
 
 - The front page no longer scrolls along behind an open menu (alarm, person, all apps, settings and the others).

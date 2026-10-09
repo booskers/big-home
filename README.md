@@ -10,13 +10,10 @@ A simple home screen (Android launcher) for older people, in German (polite "Sie
   photo is just their face (found in the contacts by phone number), and anyone without one gets their initials and
   name. Then come a large WhatsApp tile and optionally other apps as really big icons. Holding an app shows its full
   name with **Öffnen** and **Deinstallieren**.
-- **Liquid glass:** the battery, WhatsApp, the app shelf, name labels and buttons are glass that really bends what is
-  behind it at the edges (an SVG displacement map per shape, computed with real refraction, applied as
-  `backdrop-filter`, after kube.io/blog/liquid-glass-css-svg), with kube's specular rim: a fine edge of light from
-  the upper left and a strongly saturated glint of whatever is behind. Android 13+ doesn't let apps read the phone's
-  wallpaper, so for the real effect choose **Foto als Hintergrund wählen** in the settings. The photo is shown in the
-  app and also set as the phone's wallpaper, so both match. Without it the phone's wallpaper shows through, and the
-  glass is tinted with light edges.
+- **Glass look:** the battery, WhatsApp, the app shelf, name labels and buttons are tinted glass with kube's fine
+  specular rim (light from the upper left; kube.io/blog/liquid-glass-css-svg). The real refraction and the live blurs
+  were taken out again in 1.7.0: Android renders them on the processor for every frame, which made big screens lag.
+  **Foto als Hintergrund wählen** in the settings shows a photo behind it all (and sets it as the phone's wallpaper).
 - **Anordnung:** the order of the blocks (clock, family, WhatsApp, apps), the people and the apps can be changed with
   ▲ ▼ in the settings, then fixed with **Anordnung sperren**.
 - **Alle Apps:** a swipe from right to left (or the "Alle Apps" button) shows all apps as big icons with names;

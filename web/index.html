@@ -48,7 +48,7 @@ button:active{transform:scale(.96);filter:brightness(1.08)}
   box-shadow:inset 0 1px 0 rgba(255,255,255,.38),inset 0 0 0 .5px rgba(255,255,255,.22)}
 .tile:after{box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 0 0 .5px rgba(255,255,255,.18)}
 .lg:after{content:"";position:absolute;top:0;left:0;right:0;bottom:0;border-radius:inherit;pointer-events:none;z-index:2;box-shadow:none;
-  background:var(--lgspec,none) 0 0/100% 100% no-repeat;opacity:.35}
+  background:var(--lgspec,none) 0 0/100% 100% no-repeat;opacity:.55}
 
 /* the front page */
 #home{padding:calc(var(--it) + 8px) calc(var(--ir) + 16px) calc(var(--ib) + 28px) calc(var(--il) + 16px);max-width:680px;margin:0 auto}
@@ -130,10 +130,10 @@ button:active{transform:scale(.96);filter:brightness(1.08)}
 .view.open{display:flex;animation:rise .32s var(--ease)}
 /* behind a person's buttons: the background picture, softly out of focus (the buttons' glass bends it);
    with the phone's wallpaper instead, the front page is blurred */
-html:not(.hasbg) .view:not(#setup){-webkit-backdrop-filter:blur(28px) saturate(150%);backdrop-filter:blur(28px) saturate(150%)}
+html:not(.hasbg) .view:not(#setup){background:rgba(8,10,18,.92)}
 html.hasbg .view:not(#setup){background:transparent}
-.vbg{position:fixed;top:-40px;left:-40px;right:-40px;bottom:-40px;z-index:-1;pointer-events:none;display:none;
-  background:var(--bgimg) center/cover no-repeat;filter:blur(26px) brightness(.5) saturate(1.3)}
+.vbg{position:fixed;top:0;left:0;right:0;bottom:0;z-index:-1;pointer-events:none;display:none;
+  background:linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.5)),var(--bgsoft,var(--bgimg)) center/cover no-repeat}
 html.hasbg .vbg{display:block}
 @keyframes rise{from{opacity:0;transform:scale(1.03)}to{opacity:1;transform:none}}
 #person,#pin{padding:calc(var(--it) + 14px) calc(var(--ir) + 16px) calc(var(--ib) + 16px) calc(var(--il) + 16px)}
@@ -159,8 +159,8 @@ svg.iw{display:block}
 svg.i{fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
 
 /* settings, for the family member who sets the phone up: calm grouped lists, like the phone's own settings */
-#setup{background:#f2f2f7;-webkit-backdrop-filter:none;backdrop-filter:none;padding-bottom:var(--ib);color:var(--ink);font-size:20px;line-height:1.4}
-#setup .bar{position:sticky;top:0;z-index:2;background:rgba(242,242,247,.86);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+#setup{background:#f2f2f7;padding-bottom:var(--ib);color:var(--ink);font-size:20px;line-height:1.4}
+#setup .bar{position:sticky;top:0;z-index:2;background:#f2f2f7;
   border-bottom:1px solid rgba(60,60,67,.25);padding:calc(var(--it) + 10px) calc(var(--ir) + 16px) 10px calc(var(--il) + 16px);
   display:flex;align-items:center;justify-content:space-between;gap:10px}
 #setup .bar h2{margin:0;font-size:30px;font-weight:700;letter-spacing:-.01em}
@@ -196,11 +196,11 @@ input:focus{outline:3px solid rgba(10,91,216,.5);outline-offset:1px}
 .field label{display:block;font-weight:600;margin-bottom:6px}
 
 /* dialogs: a light frosted sheet */
-#dlg{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+#dlg{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:rgba(0,0,0,.6);
   display:none;align-items:center;justify-content:center;padding:calc(var(--it) + 12px) 12px calc(var(--ib) + 12px)}
 #dlg.open{display:flex;animation:fade .2s ease}
 @keyframes fade{from{opacity:0}to{opacity:1}}
-#dlg .panel{background:rgba(248,248,252,.94);-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);
+#dlg .panel{background:#f8f8fc;
   color:var(--ink);border-radius:30px;padding:20px;width:min(620px,100%);box-shadow:inset 0 1px 0 #fff;
   max-height:calc(100vh - 24px - var(--it) - var(--ib));overflow:auto;font-size:20px;line-height:1.4;animation:pop .28s var(--ease)}
 @keyframes pop{from{transform:scale(.94);opacity:.4}to{transform:none;opacity:1}}
@@ -226,7 +226,7 @@ input:focus{outline:3px solid rgba(10,91,216,.5);outline-offset:1px}
 @keyframes shake{0%,100%{transform:none}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
 
 #toast{position:fixed;left:50%;bottom:calc(var(--ib) + 26px);transform:translate(-50%,30px);opacity:0;pointer-events:none;z-index:1000;
-  background:rgba(20,22,30,.88);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);color:#fff;border-radius:999px;padding:16px 28px;
+  background:rgba(20,22,30,.94);color:#fff;border-radius:999px;padding:16px 28px;
   font-size:25px;font-weight:600;line-height:1.3;text-align:center;width:max-content;max-width:90vw;box-shadow:var(--depth);
   transition:opacity .25s,transform .3s var(--ease)}
 #toast.show{opacity:1;transform:translate(-50%,0)}
@@ -297,7 +297,8 @@ const ICON = {
 const DAYS = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 const MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
 
-/* ---------- liquid glass ----------
+/* ---------- glass edges ----------
+   (The refraction below is kept for reference but no longer applied: too slow on big screens. Only the rim is used.)
    Real refraction, as in https://kube.io/blog/liquid-glass-css-svg/ : every glass shape gets an SVG filter that bends
    what is behind it (backdrop-filter: url(#…), which Android's WebView supports). The rim of the glass is a convex
    squircle; light passing through it is refracted (Snell's law, glass 1.5), and how far each point moves is drawn
@@ -355,7 +356,7 @@ const LG = (function () {
       (upper left, -60°) and on the opposite side, fading out in between. Sharp, so drawn at twice the size. */
   const LIGHT = { x: Math.cos(-120 * Math.PI / 180), y: Math.sin(-120 * Math.PI / 180) };
   function specMap(w, h, r) {
-    const K = 3, W = Math.round(w * K), H = Math.round(h * K), ring = 0.5, soft = 0.7;
+    const K = 2, W = Math.round(w * K), H = Math.round(h * K), ring = 0.5, soft = 0.7;
     const c = document.createElement('canvas'); c.width = W; c.height = H;
     const cx = c.getContext('2d'), D = cx.createImageData(W, H), dd = D.data;
     for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
@@ -416,13 +417,12 @@ const LG = (function () {
     const sk = w + '|' + h + '|' + r;
     if (!specs.has(sk)) specs.set(sk, specMap(w, h, r));
     const spec = specs.get(sk);
-    const id = filterFor(w, h, r, bz, blur, spec);
-    el.style.backdropFilter = el.style.webkitBackdropFilter = 'url(#' + id + ')';
-    // the same rim once more above the glass tint, so the tint never hides it
+    // only the fine rim of light, drawn above the tint. The bending (backdrop-filter with a displacement map) was
+    // taken out: Android works it out on the processor for every frame, which made big screens lag.
     el.style.setProperty('--lgspec', 'url("' + spec + '")');
   }
 
-  const ro = ok && window.ResizeObserver ? new ResizeObserver(list => list.forEach(e => apply(e.target))) : null;
+  const ro = window.ResizeObserver ? new ResizeObserver(list => list.forEach(e => apply(e.target))) : null;
   return {
     supported: ok,
     /** make `el` glass (again after it changes size: done by itself) */
@@ -520,10 +520,25 @@ function initials(name) {
   const w = String(name || '?').trim().split(/\s+/);
   return ((w[0] || '?')[0] + (w.length > 1 ? w[w.length - 1][0] : '')).toUpperCase();
 }
+const blobs = new Map();
+/** a data: URL as a blob: URL, made once (the browser then decodes the picture once, not on every redraw) */
+function blobUrl(data) {
+  if (!data || !data.startsWith('data:')) return data;
+  let u = blobs.get(data);
+  if (!u) {
+    try {
+      const i = data.indexOf(','), bin = atob(data.slice(i + 1)), a = new Uint8Array(bin.length);
+      for (let k = 0; k < bin.length; k++) a[k] = bin.charCodeAt(k);
+      u = URL.createObjectURL(new Blob([a], { type: data.slice(5, data.indexOf(';')) }));
+    } catch (e) { u = data; }
+    blobs.set(data, u);
+  }
+  return u;
+}
 function avatar(p, into) {
   const e = into || el('div', 'av');
   e.textContent = '';
-  if (p.photo) { e.style.backgroundImage = 'url("' + p.photo + '")'; e.style.backgroundColor = '#333'; }
+  if (p.photo) { e.style.backgroundImage = 'url("' + blobUrl(p.photo) + '")'; e.style.backgroundColor = '#333'; }
   else {
     let h = 0; for (const ch of String(p.name)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
     const c = AVC[h % AVC.length];
@@ -535,7 +550,13 @@ function avatar(p, into) {
 }
 
 /* ---------- the front page ---------- */
-function renderHome() {
+let homeSig = '';
+function renderHome(force) {
+  // only when something on the front page changed: rebuilding it all is not free
+  const sig = JSON.stringify([C.people.map(p => [p.id, p.name, (p.photo || '').length, (p.photo || '').slice(-24), p.wa, p.call, p.sms]), C.apps.map(a => a.pkg),
+    C.order, C.names, C.showWhatsApp, C.allBtn, C.torch, C.drawer, torchOn, A.hasWhatsApp(), C.apps.map(a => A.appInstalled(a.pkg))]);
+  if (!force && sig === homeSig) return;
+  homeSig = sig;
   placeBlocks();
   const ppl = $('#people'); ppl.textContent = '';
   ppl.classList.toggle('one', C.people.length === 1);
@@ -1071,16 +1092,33 @@ function findPhotos() {
 window.onContactPhoto = function (id, url) {
   const p = C.people.find(x => x.id === id);
   if (!p || p.photo || p.noPhoto || !url) return;
-  p.photo = url; save(); renderHome();
-  if ($('#setup').classList.contains('open') && !$('#dlg').classList.contains('open')) renderSetup();
+  p.photo = url;
+  clearTimeout(photoT);
+  photoT = setTimeout(() => {
+    save(); renderHome();
+    if ($('#setup').classList.contains('open') && !$('#dlg').classList.contains('open')) renderSetup();
+  }, 400);
 };
+let photoT = 0;
 
 /* the background picture (kept by the app as a file; '' = the phone's own wallpaper shows through) */
 let bgUrl = '';
 function setBackground(url) {
   bgUrl = url || '';
-  document.documentElement.classList.toggle('hasbg', !!bgUrl);
-  document.documentElement.style.setProperty('--bgimg', bgUrl ? 'url("' + bgUrl + '")' : 'none');
+  const root = document.documentElement;
+  root.classList.toggle('hasbg', !!bgUrl);
+  root.style.setProperty('--bgimg', bgUrl ? 'url("' + blobUrl(bgUrl) + '")' : 'none');
+  root.style.removeProperty('--bgsoft');
+  if (!bgUrl) return;
+  // drawn small and blurred once; scaled up it stays soft, and costs nothing while the person screen is open
+  const img = new Image();
+  img.onload = () => {
+    const w = 90, h = Math.max(1, Math.round(w * img.height / img.width)), c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const x = c.getContext('2d'); x.filter = 'blur(4px) saturate(1.3)'; x.drawImage(img, -6, -6, w + 12, h + 12);
+    c.toBlob(b => { if (b) root.style.setProperty('--bgsoft', 'url("' + URL.createObjectURL(b) + '")'); }, 'image/jpeg', 0.8);
+  };
+  img.src = blobUrl(bgUrl);
 }
 window.onBackground = function (url) {
   setBackground(url);

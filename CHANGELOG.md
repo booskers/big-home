@@ -6,6 +6,8 @@
   apps can be hidden from that list in the settings, and the swipe can be switched off.
 - Taschenlampe: a big flashlight button that turns yellow while it's on and switches itself off after 15 minutes.
 - A clearer WhatsApp icon: a solid speech bubble with the handset cut out.
+- Much faster with many contacts and on big screens (OnePlus Open): the live blur and the bending of the background
+  are gone, the fine glass rim stays; photos are decoded once and the front page is only redrawn when something changed.
 - Holding an app in the list offers "Auf den Startbildschirm" (unless the layout is locked).
 
 ## 1.6.0 (2026-10-09)

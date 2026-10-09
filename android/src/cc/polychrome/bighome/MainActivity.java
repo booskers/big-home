@@ -46,6 +46,7 @@ import android.speech.tts.TextToSpeech;
 import android.util.Base64;
 import android.view.View;
 import android.view.WindowInsets;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -773,6 +774,24 @@ public class MainActivity extends Activity {
             });
         }
         @JavascriptInterface public void defaultApps() { runOnUiThread(() -> { if (!start(new Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))) start(new Intent(Settings.ACTION_SETTINGS)); }); }
+
+        /** Android 12+ can blur what is behind this window (the phone's wallpaper); not in battery saver */
+        @JavascriptInterface public boolean canBlur() {
+            return Build.VERSION.SDK_INT >= 31 && getSystemService(WindowManager.class).isCrossWindowBlurEnabled();
+        }
+        /** while a menu is open: the wallpaper behind the app, blurred by Android itself (no work for the app) */
+        @JavascriptInterface public void blurBehind(boolean on) {
+            if (Build.VERSION.SDK_INT < 31) return;
+            runOnUiThread(() -> {
+                WindowManager.LayoutParams lp = getWindow().getAttributes();
+                int r = on ? Math.round(36 * getResources().getDisplayMetrics().density) : 0;
+                if (on) getWindow().addFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+                else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+                lp.setBlurBehindRadius(r);
+                getWindow().setAttributes(lp);
+                getWindow().setBackgroundBlurRadius(r);
+            });
+        }
 
         @JavascriptInterface public boolean hasTorch() { return torchId != null; }
         @JavascriptInterface public boolean torch(boolean on) { return setTorch(on); }

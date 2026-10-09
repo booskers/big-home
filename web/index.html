@@ -210,11 +210,15 @@ input[type=radio]{width:30px;height:30px;flex:none;accent-color:#1e9a52}
 @media (min-width:900px){ #dock{grid-template-columns:repeat(4,1fr)} }
 
 /* one person: a contact card, then WhatsApp, call, SMS as big glass buttons */
-.view{position:fixed;top:0;left:0;right:0;bottom:0;z-index:100;background:rgba(8,10,18,.62);display:none;flex-direction:column;overflow:auto}
+.view{position:fixed;top:0;left:0;right:0;bottom:0;z-index:100;background:rgba(8,10,18,.62);display:none;flex-direction:column;overflow:auto;overscroll-behavior:contain}
+/* while a menu is open the front page underneath stays where it is */
+html.lock,html.lock body{overflow:hidden;overscroll-behavior:none}
 .view.open{display:flex;animation:rise .32s var(--ease)}
 /* behind a person's buttons: the background picture, softly out of focus (the buttons' glass bends it);
    with the phone's wallpaper instead, the front page is blurred */
 html:not(.hasbg) .view:not(#setup){background:rgba(8,10,18,.45)}
+/* phones that can't blur the wallpaper (Android 11 and older, battery saver): a darker veil instead */
+html.noblur:not(.hasbg) .view:not(#setup){background:rgba(8,10,18,.78)}
 html:not(.hasbg).dim #home{filter:blur(14px) brightness(.6)}
 html.sizing #home{pointer-events:none}
 #sizebar{position:fixed;left:12px;right:12px;bottom:calc(var(--ib) + 12px);z-index:400;display:none;align-items:center;gap:10px;padding:12px;
@@ -613,7 +617,7 @@ function makeMock() {
     listApps() { setTimeout(() => onApps(JSON.stringify(['Kamera', 'Galerie', 'Großes Solitär', 'Bunte Steine', 'Wetter', 'Uhr', 'Rechner', 'Kalender', 'Einstellungen', 'Telefon', 'Nachrichten', 'Chrome', 'YouTube', 'Radio'].map((l, i) => ({ pkg: 'app' + i, label: l, icon: this.appIcon(i % 2 ? 'cam' : 'x') })))), 200); },
     setAlarm(h, m, l, d) { this._al = new Date(); this._al.setHours(h, m, 0, 0); if (this._al < new Date()) this._al = new Date(+this._al + 864e5); return true; },
     nextAlarm() { return this._al ? +this._al : 0; }, setTimer: () => true, showAlarms() { say('Wecker-App'); }, showTimers() { say('Timer-App'); },
-    hasTorch: () => true,
+    hasTorch: () => true, canBlur: () => true, blurBehind() {},
     has(w) { return !!(this.perm && this.perm[w]); }, ask(w) { this.perm = this.perm || {}; this.perm[w] = true; setTimeout(() => onPerms(), 100); },
     appDetails() {}, notesOn: () => true, notesAccess() {}, exactAlarms: () => true, allowExactAlarms() {},
     badges(j) { const o = {}; JSON.parse(j).forEach((p, i) => { if (i === 1) o[p.id] = { calls: 2, wa: 1 }; }); return JSON.stringify(o); },
@@ -1439,9 +1443,17 @@ $('#sizebar').querySelectorAll('[data-s]').forEach(b => b.onclick = () => {
 $('#sizeDone').onclick = endSizing;
 
 /* the front page is blurred while a person, the app list or a helper is open (see html.dim in the styles) */
+let blurred = null;
 new MutationObserver(() => {
-  const open = ['#person', '#drawer', '#wview', '#pin'].some(q => $(q).classList.contains('open'));
-  document.documentElement.classList.toggle('dim', open);
+  const root = document.documentElement;
+  const open = ['#person', '#drawer', '#wview', '#pin', '#mview'].some(q => $(q).classList.contains('open'));
+  root.classList.toggle('dim', open);
+  // any menu at all (also the settings, Lupe, photos): the page underneath must not scroll along
+  root.classList.toggle('lock', !!document.querySelector('.view.open'));
+  // the phone's own wallpaper is blurred by Android itself (it can't be read by the app); with a photo of our own
+  // the blurred copy behind the menu already covers everything
+  const want = open && !root.classList.contains('hasbg');
+  if (want !== blurred && A.blurBehind) { blurred = want; A.blurBehind(want); }
 }).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
 
 /* ======================================================================================================
@@ -1928,6 +1940,7 @@ window.onBackground = function (url) {
 };
 try { setBackground(A.getBackground()); } catch (e) {}
 
+try { if (A.canBlur && !A.canBlur()) document.documentElement.classList.add('noblur'); } catch (e) {}
 fixOrder();
 applySize();
 renderHome();

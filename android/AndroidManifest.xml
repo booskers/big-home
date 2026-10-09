@@ -3,8 +3,8 @@
      shipped inside the app; this is one activity that is the phone's Home app once chosen. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cc.polychrome.bighome"
-    android:versionCode="11"
-    android:versionName="1.10.0">
+    android:versionCode="12"
+    android:versionName="1.10.1">
 
     <!-- Android 7 and newer: covers the older Samsung phones -->
     <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="35" />

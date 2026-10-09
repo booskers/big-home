@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.10.1 (2026-10-09)
+
+- The front page no longer scrolls along behind an open menu (alarm, person, all apps, settings and the others).
+- Opening a menu now also blurs the phone's own wallpaper, not only the tiles (Android 12 and newer, done by Android
+  itself; older phones and battery saver get a darker veil instead).
+
 ## 1.10.0 (2026-10-09)
 
 WhatsApp, made big. Everything goes through the WhatsApp app on the phone (its contact entries and notification

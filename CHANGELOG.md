@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.10.0 (2026-10-09)
+
+WhatsApp, made big. Everything goes through the WhatsApp app on the phone (its contact entries and notification
+buttons); nothing talks to WhatsApp's servers, so the account is not at risk. All of it is off until switched on.
+
+- WhatsApp-Anruf and Videoanruf: one-tap buttons on a person. "Anrufen über" in the settings picks phone calls,
+  WhatsApp calls, video calls or any mix for everyone, and each person can be set on their own. If the number isn't a
+  WhatsApp contact on the phone, the chat opens with a hint where to tap.
+- WhatsApp-Anrufe groß anzeigen: an incoming WhatsApp call shows the big call screen with photo, name, Annehmen and
+  Ablehnen; during the call a big Auflegen bar stays on top. Optionally, calls from the family are answered after 5 s.
+- WhatsApp-Nachrichten groß: new messages as big cards on the front page; open one to have it read aloud, answer it
+  (typing, speaking or a ready answer such as "Ja 👍"), mark it read, or open the chat.
+
 ## 1.9.0 (2026-10-09)
 
 All new parts are optional and off until switched on in the settings.

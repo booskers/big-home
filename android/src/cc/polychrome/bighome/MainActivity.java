@@ -74,7 +74,7 @@ import org.json.JSONObject;
  */
 public class MainActivity extends Activity {
     static final String PAGE = "file:///android_asset/index.html";
-    static final int REQ_CONTACT = 1, REQ_PHOTO = 2, REQ_PERMS = 3, REQ_ROLE = 4, REQ_BG = 5, REQ_DIALER = 6;
+    static final int REQ_CONTACT = 1, REQ_PHOTO = 2, REQ_PERMS = 3, REQ_ROLE = 4, REQ_BG = 5, REQ_DIALER = 6, REQ_SPEECH = 7;
     static WeakReference<MainActivity> current = new WeakReference<>(null);
 
     /** something changed in the background (a reminder, a message, a missed call): the page looks again */
@@ -405,6 +405,11 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int req, int res, Intent data) {
         super.onActivityResult(req, res, data);
         if (req == REQ_ROLE || req == REQ_DIALER) { js("window.onResumed&&onResumed()"); return; }
+        if (req == REQ_SPEECH) {
+            java.util.ArrayList<String> said = res == RESULT_OK && data != null ? data.getStringArrayListExtra(android.speech.RecognizerIntent.EXTRA_RESULTS) : null;
+            js("window.onHeard&&onHeard(" + JSONObject.quote(said == null || said.isEmpty() ? "" : said.get(0)) + ")");
+            return;
+        }
         if (res != RESULT_OK || data == null || data.getData() == null) return;
         Uri u = data.getData();
         new Thread(() -> {
@@ -489,6 +494,30 @@ public class MainActivity extends Activity {
             Uri u = Uri.fromParts("tel", number, null);
             if (granted(Manifest.permission.CALL_PHONE) && start(new Intent(Intent.ACTION_CALL, u))) return true;
             return start(new Intent(Intent.ACTION_DIAL, u));
+        }
+
+        /** a WhatsApp voice or video call straight away; false when WhatsApp has no call for this number in the contacts */
+        @JavascriptInterface public boolean waCall(String number, boolean video) {
+            return WhatsApp.call(MainActivity.this, whatsAppPackage(), number, video);
+        }
+        /** whether WhatsApp can call this number in one tap (it is in the phone's contacts and on WhatsApp) */
+        @JavascriptInterface public boolean waCallable(String number) { return WhatsApp.callRow(MainActivity.this, number, false) >= 0; }
+
+        // ---- WhatsApp messages on the front page, answered through WhatsApp's own reply field
+        @JavascriptInterface public String waMessages(boolean familyOnly) { return WhatsApp.messages(MainActivity.this, familyOnly).toString(); }
+        @JavascriptInterface public boolean waReply(String key, String text) { return WhatsApp.reply(MainActivity.this, key, text); }
+        @JavascriptInterface public boolean waRead(String key) { return WhatsApp.markRead(MainActivity.this, key); }
+        @JavascriptInterface public boolean waOpen(String key) { return WhatsApp.open(MainActivity.this, key); }
+
+        /** Android's "speak now"; the words come back to onHeard(text) */
+        @JavascriptInterface public void listen() {
+            runOnUiThread(() -> {
+                Intent i = new Intent(android.speech.RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+                    .putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE_MODEL, android.speech.RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                    .putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE, "de-DE")
+                    .putExtra(android.speech.RecognizerIntent.EXTRA_PROMPT, "Bitte jetzt sprechen");
+                try { startActivityForResult(i, REQ_SPEECH); } catch (Exception e) { js("window.onHeard&&onHeard(null)"); }
+            });
         }
 
         @JavascriptInterface public boolean sms(String number) {
@@ -628,12 +657,17 @@ public class MainActivity extends Activity {
             }
         }
         @JavascriptInterface public boolean has(String which) {
+            if ("overlay".equals(which)) return WhatsApp.overlayAllowed(MainActivity.this);
             String[] p = perms(which);
             if ("photos".equals(which) && Build.VERSION.SDK_INT >= 34) return granted(p[0]) || granted(p[1]);
             for (String x : p) if (!granted(x)) return false;
             return true;
         }
         @JavascriptInterface public void ask(String which) {
+            if ("overlay".equals(which)) {
+                runOnUiThread(() -> { if (!start(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())))) start(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()))); });
+                return;
+            }
             String[] p = perms(which);
             runOnUiThread(() -> { if (p.length > 0) requestPermissions(p, REQ_PERMS); else js("window.onPerms&&onPerms()"); });
         }

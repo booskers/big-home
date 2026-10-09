@@ -29,6 +29,8 @@ public class Notes extends NotificationListenerService {
     /** normalised sender name -> unread messages */
     static volatile Map<String, Integer> unread = new HashMap<>();
     static volatile boolean connected;
+    /** the running listener, for the front page's messages and their replies (WhatsApp.messages) */
+    static volatile Notes me;
 
     TextToSpeech tts;
     volatile boolean ttsReady;
@@ -45,16 +47,25 @@ public class Notes extends NotificationListenerService {
         return s.trim().toLowerCase(Locale.GERMANY);
     }
 
-    @Override public void onListenerConnected() { connected = true; count(); }
-    @Override public void onListenerDisconnected() { connected = false; }
+    @Override public void onListenerConnected() { connected = true; me = this; count(); }
+    @Override public void onListenerDisconnected() { connected = false; me = null; }
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
+        // a WhatsApp call: the big call screen (if switched on), never a "message"
+        if (isWhatsApp(sbn.getPackageName()) && WhatsApp.isCall(sbn.getNotification())) {
+            try { WhatsApp.posted(this, sbn); } catch (Exception ignored) { }
+            return;
+        }
         count();
         try { speak(sbn); } catch (Exception ignored) { }
     }
 
-    @Override public void onNotificationRemoved(StatusBarNotification sbn) { count(); }
+    @Override
+    public void onNotificationRemoved(StatusBarNotification sbn) {
+        if (isWhatsApp(sbn.getPackageName())) try { WhatsApp.removed(this, sbn); } catch (Exception ignored) { }
+        count();
+    }
 
     static boolean isWhatsApp(String pkg) { for (String p : WHATSAPP) if (p.equals(pkg)) return true; return false; }
 
@@ -66,7 +77,7 @@ public class Notes extends NotificationListenerService {
         for (StatusBarNotification sbn : all) {
             if (!isWhatsApp(sbn.getPackageName())) continue;
             Notification n = sbn.getNotification();
-            if ((n.flags & Notification.FLAG_GROUP_SUMMARY) != 0) continue;
+            if ((n.flags & Notification.FLAG_GROUP_SUMMARY) != 0 || WhatsApp.isCall(n)) continue;
             Bundle x = n.extras;
             String who = norm(String.valueOf(x.getCharSequence(Notification.EXTRA_TITLE, "")));
             if (who.isEmpty()) continue;
@@ -119,6 +130,7 @@ public class Notes extends NotificationListenerService {
 
     @Override
     public void onDestroy() {
+        if (me == this) me = null;
         if (tts != null) tts.shutdown();
         super.onDestroy();
     }

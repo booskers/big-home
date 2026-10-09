@@ -59,6 +59,28 @@ public class Phone {
 
     static int dp(Context c, float v) { return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, v, c.getResources().getDisplayMetrics())); }
 
+    /** white text for the dark call screens (also WhatsApp's) */
+    static TextView label(Context c, int sp, boolean bold) {
+        TextView t = new TextView(c);
+        t.setTextColor(Color.WHITE); t.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp); t.setGravity(Gravity.CENTER);
+        if (bold) t.setTypeface(Typeface.DEFAULT_BOLD);
+        return t;
+    }
+
+    /** a huge, round, coloured button the full width */
+    static Button bigButton(Context c, String label, int color, int heightDp, View.OnClickListener fn) {
+        Button b = new Button(c);
+        b.setText(label); b.setAllCaps(false); b.setTextColor(Color.WHITE); b.setTextSize(TypedValue.COMPLEX_UNIT_SP, 32);
+        b.setTypeface(Typeface.DEFAULT_BOLD);
+        GradientDrawable g = new GradientDrawable(); g.setColor(color); g.setCornerRadius(dp(c, 34));
+        b.setBackground(g);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(c, heightDp));
+        lp.topMargin = dp(c, 14);
+        b.setLayoutParams(lp);
+        b.setOnClickListener(fn);
+        return b;
+    }
+
     static String digits(String n) { String d = n == null ? "" : n.replaceAll("\\D", ""); return d.length() > 8 ? d.substring(d.length() - 8) : d; }
 
     /** name and picture for a number: the family first (as on the tiles), then the phone's contacts */
@@ -221,25 +243,8 @@ public class Phone {
         // Back does not end or hide a call by accident
         @Override @SuppressWarnings("deprecation") public void onBackPressed() { }
 
-        TextView text(int sp, boolean bold) {
-            TextView t = new TextView(this);
-            t.setTextColor(Color.WHITE); t.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp); t.setGravity(Gravity.CENTER);
-            if (bold) t.setTypeface(Typeface.DEFAULT_BOLD);
-            return t;
-        }
-
-        Button big(String label, int color, int heightDp, View.OnClickListener fn) {
-            Button b = new Button(this);
-            b.setText(label); b.setAllCaps(false); b.setTextColor(Color.WHITE); b.setTextSize(TypedValue.COMPLEX_UNIT_SP, 32);
-            b.setTypeface(Typeface.DEFAULT_BOLD);
-            GradientDrawable g = new GradientDrawable(); g.setColor(color); g.setCornerRadius(dp(this, 34));
-            b.setBackground(g);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(this, heightDp));
-            lp.topMargin = dp(this, 14);
-            b.setLayoutParams(lp);
-            b.setOnClickListener(fn);
-            return b;
-        }
+        TextView text(int sp, boolean bold) { return label(this, sp, bold); }
+        Button big(String label, int color, int heightDp, View.OnClickListener fn) { return bigButton(this, label, color, heightDp, fn); }
 
         String lastLayout = "";
         void update() {

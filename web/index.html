@@ -110,6 +110,21 @@ button:active{transform:scale(.96);filter:brightness(1.08)}
 .medtxt svg{width:52px;height:52px;flex:none}
 .medtxt small{display:block;font-size:.6em;font-weight:600}
 .medok{min-height:88px;border:0;border-radius:var(--r-l);background:#107a3e;color:#fff;font-size:min(calc(8vw / var(--ui)),34px);font-weight:800}
+/* a new WhatsApp message on the front page */
+.wacard{position:relative;isolation:isolate;border:0;border-radius:var(--r-xl);background:rgba(16,122,62,.9);color:#fff;padding:16px 18px;text-align:left;
+  display:flex;flex-direction:column;gap:6px;font-size:min(calc(6vw / var(--ui)),26px);line-height:1.25;width:100%}
+.wacard b{font-size:1.15em}
+.wacard span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;opacity:.95;white-space:pre-line}
+#mview{zoom:var(--ui);padding:calc(var(--zit) + 14px) calc(var(--zir) + 16px) calc(var(--zib) + 16px) calc(var(--zil) + 16px);align-items:center}
+#mview > :not(.vbg){width:100%;max-width:640px}
+#mview h2{font-size:min(calc(9vw / var(--ui)),40px);margin:6px 0 4px;font-weight:700;text-align:center}
+#mWhen{text-align:center;font-size:22px;opacity:.85;margin-bottom:12px}
+#mText{background:#fff;color:#1c1c1e;border-radius:var(--r-l);padding:18px 20px;font-size:min(calc(7vw / var(--ui)),32px);line-height:1.35;white-space:pre-line;overflow-wrap:anywhere;margin-bottom:14px}
+#mActs{display:flex;flex-direction:column;gap:12px;margin-bottom:14px}
+#mActs .act{min-height:88px;flex:none}
+#mReply textarea{width:100%;min-height:150px;border:0;border-radius:var(--r-l);padding:16px;font:inherit;font-size:30px;line-height:1.3;color:#1c1c1e;resize:vertical}
+#mQuick{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+#mQuick button{border:0;border-radius:999px;background:rgba(255,255,255,.9);color:#1c1c1e;font-size:24px;font-weight:600;padding:14px 20px;min-height:64px}
 .pill.okbtn{background:rgba(16,122,62,.85)}
 .pill.done{background:var(--glass);opacity:.85}
 .pill.sosbtn{background:rgba(200,30,45,.9)}
@@ -228,6 +243,8 @@ html.hasbg .vbg{display:block}
 .act small{display:block;font-size:.5em;font-weight:600;margin-top:5px;opacity:.95}
 .act.wa{background:rgba(16,122,62,.72)}
 .act.call{background:rgba(30,80,190,.72)}
+.act.wacall{background:rgba(12,104,54,.78)}
+.act.wavideo{background:rgba(8,88,96,.78)}
 .act.sms{background:rgba(176,80,12,.74)}
 .back{min-height:80px;border:0;border-radius:999px;background:var(--glass-light);color:#fff;font-size:min(calc(8vw / var(--ui)),34px);font-weight:700;
   display:flex;align-items:center;justify-content:center;gap:12px;flex:none;box-shadow:var(--depth)}
@@ -359,6 +376,19 @@ input:focus{outline:3px solid rgba(10,91,216,.5);outline-offset:1px}
   <button class="back lg" id="wBack" style="margin-top:14px"><svg class="i" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Zurück</button>
 </div>
 
+<div id="mview" class="view" role="dialog" aria-labelledby="mWho">
+  <div class="vbg"></div>
+  <h2 id="mWho"></h2>
+  <div id="mWhen"></div>
+  <div id="mText"></div>
+  <div id="mReply" hidden>
+    <textarea id="mTa" aria-label="Ihre Antwort" placeholder="Ihre Antwort …"></textarea>
+    <div id="mQuick"></div>
+  </div>
+  <div id="mActs"></div>
+  <button class="back lg" id="mBack"><svg class="i" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Zurück</button>
+</div>
+
 <div id="drawer" class="view" role="dialog" aria-label="Alle Apps">
   <div class="vbg"></div>
   <h2>Alle Apps</h2>
@@ -394,7 +424,12 @@ const ICON = {
   wa: '<svg class="iw" viewBox="0 0 24 24"><path fill="#fff" d="M12 2.2a9.4 9.4 0 0 0-8.1 14.2L2.6 21.4l5.2-1.3A9.4 9.4 0 1 0 12 2.2z"/>' +
     '<path fill="#0f7a3d" transform="translate(6.2 5.7) scale(.5)" d="M20 15.4c-1.2 0-2.4-.2-3.5-.6a1 1 0 0 0-1 .2l-1.6 2c-2.8-1.4-5.5-3.9-6.9-6.8l2-1.7c.3-.3.4-.7.2-1-.4-1.1-.6-2.3-.6-3.5 0-.6-.4-1-1-1H4.2C3.6 3 3 3.2 3 4c0 9.3 7.7 17 17 17 .7 0 1-.6 1-1.2v-3.4c0-.6-.4-1-1-1z"/></svg>',
   call: '<svg class="i" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>',
-  sms: '<svg class="i" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M7 8h10M7 12h6"/></svg>'
+  sms: '<svg class="i" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M7 8h10M7 12h6"/></svg>',
+  video: '<svg class="i" viewBox="0 0 24 24"><rect x="2" y="6" width="14" height="12" rx="2.5"/><path d="M16 10.5l6-3.5v10l-6-3.5z"/></svg>',
+  mic: '<svg class="i" viewBox="0 0 24 24"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/></svg>',
+  speak: '<svg class="i" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>',
+  done: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.6 2.6L16 9.5"/></svg>',
+  open: '<svg class="i" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>'
 };
 const DAYS = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 const MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
@@ -586,6 +621,10 @@ function makeMock() {
     medTaken(id) { (this._taken = this._taken || {})[id] = true; }, checkIn() { this._ci = true; return true; }, sos() { say('SOS'); },
     photos() { setTimeout(() => onPhotos(JSON.stringify(['1', '2', '3'])), 100); },
     photo(id, size) { setTimeout(() => onPhoto(id, mockPicture(id === '2')), 80); },
+    waCall: (n, v) => (say((v ? 'WhatsApp-Video ' : 'WhatsApp-Anruf ') + n), true), waCallable: n => !/^0152/.test(n),
+    waMessages() { return JSON.stringify(this._read ? [] : [{ key: 'k1', who: 'Anna', id: 'p1', text: 'Hallo Mama, kommst du am Sonntag zum Kaffee? Wir holen dich um drei ab.', time: Date.now() - 6e5, reply: true, family: true }]); },
+    waReply: (k, t) => (say('Antwort: ' + t), true), waRead(k) { this._read = true; return true; }, waOpen: () => (say('WhatsApp-Chat'), true),
+    listen() { setTimeout(() => onHeard('Ja, sehr gerne'), 400); },
     isDialer: () => false, bigCalls() { say('Telefon-App wählen'); }, defaultApps() {}, torch(on) { setTimeout(() => onTorch(on), 50); return true; },
     pickContact() { setTimeout(() => onContactPicked(JSON.stringify({ name: 'Neuer Kontakt', number: '+49 30 1234567', photo: '' })), 200); },
     pickPhoto() { say('Foto wählen'); },
@@ -605,7 +644,8 @@ const DEF = { v: 1, people: [], apps: [], showWhatsApp: true, country: '49', spe
   order: ['clock', 'meds', 'care', 'people', 'whatsapp', 'tools', 'widgets', 'frame', 'apps'], locked: false,
   badges: false, readAloud: false, readFamilyOnly: true, meds: [], lupe: false, frame: false, frameWA: false, care: null,
   wAlarm: false, wTimer: false, wSw: false, sw: { acc: 0, start: 0 }, timerEnd: 0, timerLen: 0,
-  drawer: true, allBtn: true, torch: true, hidden: [], ui: 1 };
+  drawer: true, allBtn: true, torch: true, hidden: [], ui: 1,
+  via: { phone: true, wa: false, video: false }, waCalls: false, waAuto: false, waMsgs: false, waMsgsFamily: true };
 let C, firstRun = false;
 try { C = JSON.parse(A.loadConfig() || 'null'); } catch (e) { C = null; }
 if (!C || !C.v) { C = JSON.parse(JSON.stringify(DEF)); firstRun = true; } else C = Object.assign(JSON.parse(JSON.stringify(DEF)), C);
@@ -768,9 +808,14 @@ function openPerson(p) {
     b.innerHTML = '<span class="chip">' + icon + '</span><span>' + esc(title) + '<small>' + esc(sub) + '</small></span>';
     b.onclick = fn; acts.append(b);
   };
+  const waCalls = A.hasWhatsApp() && (p.waCall || p.waVideo);
   if (p.wa !== false && A.hasWhatsApp())
-    add('wa', ICON.wa, 'WhatsApp', 'Nachricht oder Anruf', () => { say('WhatsApp mit ' + p.name);
+    add('wa', ICON.wa, 'WhatsApp', waCalls ? 'Nachricht schreiben' : 'Nachricht oder Anruf', () => { say('WhatsApp mit ' + p.name);
       launch(() => A.whatsapp(waNumber(p.number)), 'WhatsApp wird geöffnet …', 'WhatsApp ließ sich nicht öffnen.'); });
+  if (p.waCall && A.hasWhatsApp())
+    add('wacall', ICON.call, 'WhatsApp-Anruf', 'Anrufen über WhatsApp', () => { say('WhatsApp-Anruf bei ' + p.name); waCall(p, false); });
+  if (p.waVideo && A.hasWhatsApp())
+    add('wavideo', ICON.video, 'Videoanruf', 'Sehen und sprechen, über WhatsApp', () => { say('Videoanruf bei ' + p.name); waCall(p, true); });
   if (p.call !== false)
     add('call', ICON.call, 'Anrufen', 'Telefon', () => { say('Anruf bei ' + p.name);
       launch(() => A.call(p.number), p.name + ' wird angerufen …'); });
@@ -783,6 +828,13 @@ function openPerson(p) {
   LG.scan($('#person'));
   say(p.name);
   bumpIdle();
+}
+/** a WhatsApp call in one tap; if WhatsApp has no call for this number, its chat opens, with the hint where to tap */
+function waCall(p, video) {
+  toast(p.name + ' wird über WhatsApp angerufen …');
+  if (A.waCall(p.number, video)) return;
+  if (A.whatsapp(waNumber(p.number))) toast('Bitte in WhatsApp oben auf ' + (video ? 'die Kamera' : 'den Hörer') + ' tippen.');
+  else toast('WhatsApp ließ sich nicht öffnen.');
 }
 function closePerson() { $('#person').classList.remove('open'); curPerson = null; clearTimeout(idleT); }
 function bumpIdle() { clearTimeout(idleT); idleT = setTimeout(closePerson, 90000); }
@@ -904,9 +956,16 @@ function renderSetup() {
   h += '<p class="note" style="margin:10px 6px 6px">Reihenfolge auf dem Startbildschirm, von oben nach unten:</p><div data-list="order">';
   C.order.forEach((k, i) => { h += itemHTML(i, C.order.length, '', BLOCKS[k], '', false, true); });
   h += '</div>';
+  const via = C.via || DEF.via;
+  h += '<h3>Anrufen über</h3><p class="note" style="margin:0 6px 8px">Welche Knöpfe zum Anrufen bei jeder Person erscheinen. Eins oder mehrere wählen; das gilt für alle, einzeln geht es unter „Ändern“.</p>' +
+    '<label class="chk"><input type="checkbox" data-via="phone"' + (via.phone !== false ? ' checked' : '') + '> Telefon (normaler Anruf)</label>' +
+    '<label class="chk"><input type="checkbox" data-via="wa"' + (via.wa ? ' checked' : '') + '> WhatsApp-Anruf</label>' +
+    '<label class="chk"><input type="checkbox" data-via="video"' + (via.video ? ' checked' : '') + '> WhatsApp-Videoanruf</label>';
+  if ((via.wa || via.video) && !A.hasWhatsApp()) h += '<p class="warnbox">WhatsApp ist auf diesem Handy nicht installiert.</p>';
+  else if ((via.wa || via.video) && !A.hasContactPermission()) h += '<p class="warnbox">Für WhatsApp-Anrufe mit einem Tipp braucht Großer Start die Kontakte.<br><button class="btn" data-act="perm" style="margin-top:8px">Kontakte erlauben</button></p>';
   h += '<h3>Familie</h3><div data-list="people">';
   C.people.forEach((p, i) => {
-    const sub = [p.number, [p.wa !== false && 'WhatsApp', p.call !== false && 'Anruf', p.sms !== false && 'SMS'].filter(Boolean).join(' · ')].join('\n');
+    const sub = [p.number, [p.wa !== false && 'WhatsApp', p.call !== false && 'Anruf', p.waCall && 'WhatsApp-Anruf', p.waVideo && 'Video', p.sms !== false && 'SMS'].filter(Boolean).join(' · ')].join('\n');
     h += itemHTML(i, C.people.length, '<div class="av" data-av="' + i + '"></div>', p.name, sub, true);
   });
   h += '</div><div class="row"><button class="btn pri" data-act="pick">+ Aus den Kontakten</button><button class="btn" data-act="manual">+ Von Hand eingeben</button></div>';
@@ -962,6 +1021,15 @@ function renderSetup() {
 }
 
 $('#setup').addEventListener('change', e => {
+  const v = e.target.dataset && e.target.dataset.via;
+  if (v) {
+    C.via = Object.assign({}, DEF.via, C.via, { [v]: e.target.checked });
+    const k = { phone: 'call', wa: 'waCall', video: 'waVideo' }[v];
+    C.people.forEach(p => { p[k] = e.target.checked; });
+    save(); renderHome(); renderSetup();
+    if (v !== 'phone' && e.target.checked && !A.hasContactPermission()) A.askPermissions();
+    return;
+  }
   const o = e.target.dataset && e.target.dataset.opt;
   if (o) {
     C[o] = e.target.checked; save(); renderHome(); renderSetup();
@@ -969,6 +1037,8 @@ $('#setup').addEventListener('change', e => {
     if (o === 'frame' && C.frame && !A.has('photos')) { pendingAfterPerm = () => { renderHome(true); }; A.ask('photos'); }
     if (o === 'frameWA') loadPhotos();
     if (o === 'lupe' && C.lupe && !A.has('camera')) A.ask('camera');
+    if ((o === 'waCalls' || o === 'waMsgs') && C[o] && !A.notesOn()) A.notesAccess();
+    if (o === 'waMsgs' || o === 'waMsgsFamily') refreshCare();
   }
 });
 $('#setup').addEventListener('click', e => {
@@ -1054,21 +1124,40 @@ function confirmDlg(text, ok, fn, danger) {
 
 let editing = null;
 function editPerson(p, pre) {
-  editing = p ? Object.assign({}, p) : Object.assign({ id: 'p' + Date.now(), name: '', number: '', photo: '', wa: true, call: true, sms: true }, pre || {});
+  const via = C.via || DEF.via;
+  editing = p ? Object.assign({}, p) : Object.assign({ id: 'p' + Date.now(), name: '', number: '', photo: '', wa: true, call: via.phone !== false, waCall: !!via.wa, waVideo: !!via.video, sms: true }, pre || {});
   const isNew = !p;
   openDlg('<h2>' + (isNew ? 'Person hinzufügen' : 'Person ändern') + '</h2>' +
     '<div class="item" style="border:0;padding:0;background:none"><div class="av" id="eAv" style="width:96px;height:96px;font-size:40px"></div>' +
     '<div class="row"><button class="btn" id="ePhoto">Foto wählen</button><button class="btn" id="eNoPhoto">Kein Foto</button></div></div>' +
     '<div class="field"><label for="eName">Name (so wie er auf der Kachel stehen soll)</label><input type="text" id="eName" value="' + esc(editing.name) + '"></div>' +
     '<div class="field"><label for="eNum">Telefonnummer</label><input type="tel" id="eNum" value="' + esc(editing.number) + '"></div>' +
-    '<label class="chk"><input type="checkbox" id="eWa"' + (editing.wa !== false ? ' checked' : '') + '> WhatsApp</label>' +
-    '<label class="chk"><input type="checkbox" id="eCall"' + (editing.call !== false ? ' checked' : '') + '> Anrufen</label>' +
+    '<p class="note" style="margin:10px 6px 2px">Anrufen über (eins oder mehrere):</p>' +
+    '<label class="chk"><input type="checkbox" id="eCall"' + (editing.call !== false ? ' checked' : '') + '> Telefon (normaler Anruf)</label>' +
+    '<label class="chk"><input type="checkbox" id="eWaCall"' + (editing.waCall ? ' checked' : '') + '> WhatsApp-Anruf</label>' +
+    '<label class="chk"><input type="checkbox" id="eWaVideo"' + (editing.waVideo ? ' checked' : '') + '> WhatsApp-Videoanruf</label>' +
+    '<div id="eWaNote"></div>' +
+    '<p class="note" style="margin:10px 6px 2px">Nachrichten:</p>' +
+    '<label class="chk"><input type="checkbox" id="eWa"' + (editing.wa !== false ? ' checked' : '') + '> WhatsApp-Nachricht</label>' +
     '<label class="chk"><input type="checkbox" id="eSms"' + (editing.sms !== false ? ' checked' : '') + '> SMS</label>' +
     '<p id="eErr" style="color:var(--warn);font-weight:700;min-height:1em;margin:4px 0"></p>' +
     '<div class="row" style="justify-content:flex-end"><button class="btn" id="eCancel">Abbrechen</button><button class="btn pri" id="eSave">Speichern</button></div>');
   const draw = () => avatar(Object.assign({}, editing, { name: $('#eName').value || '?' }), $('#eAv'));
   draw();
   $('#eName').oninput = draw;
+  const waNote = () => {
+    if (!$('#eWaNote')) return;
+    const on = $('#eWaCall').checked || $('#eWaVideo').checked, num = $('#eNum').value.trim();
+    let h = '';
+    if (on && !A.hasWhatsApp()) h = '<p class="warnbox">WhatsApp ist auf diesem Handy nicht installiert.</p>';
+    else if (on && !A.hasContactPermission()) h = '<p class="warnbox">Für WhatsApp-Anrufe mit einem Tipp braucht Großer Start die Kontakte.<br><button class="btn" id="eWaPerm" style="margin-top:8px">Kontakte erlauben</button></p>';
+    else if (on && num.replace(/\D/g, '').length >= 3 && !A.waCallable(num)) h = '<p class="warnbox">Diese Nummer ist nicht als WhatsApp-Kontakt im Handy gespeichert. Dann öffnet sich der Chat, und man tippt dort oben auf den Hörer. ' +
+      'Abhilfe: die Nummer in den Kontakten speichern und WhatsApp einmal öffnen.</p>';
+    $('#eWaNote').innerHTML = h;
+    if ($('#eWaPerm')) $('#eWaPerm').onclick = () => { pendingAfterPerm = waNote; A.askPermissions(); };
+  };
+  $('#eWaCall').onchange = $('#eWaVideo').onchange = waNote; $('#eNum').onchange = waNote;
+  waNote();
   $('#ePhoto').onclick = () => A.pickPhoto();
   $('#eNoPhoto').onclick = () => { editing.photo = ''; editing.noPhoto = true; draw(); };
   $('#eCancel').onclick = closeDlg;
@@ -1076,7 +1165,7 @@ function editPerson(p, pre) {
     const name = $('#eName').value.trim(), num = $('#eNum').value.trim();
     if (!name) return ($('#eErr').textContent = 'Bitte einen Namen eingeben.');
     if (num.replace(/\D/g, '').length < 3) return ($('#eErr').textContent = 'Bitte eine Telefonnummer eingeben.');
-    Object.assign(editing, { name, number: num, wa: $('#eWa').checked, call: $('#eCall').checked, sms: $('#eSms').checked });
+    Object.assign(editing, { name, number: num, wa: $('#eWa').checked, call: $('#eCall').checked, waCall: $('#eWaCall').checked, waVideo: $('#eWaVideo').checked, sms: $('#eSms').checked });
     const at = C.people.findIndex(x => x.id === editing.id);
     if (at >= 0) C.people[at] = editing; else C.people.push(editing);
     save(); closeDlg(); renderSetup(); renderHome(); findPhotos();
@@ -1397,8 +1486,84 @@ function renderMeds() {
     b.onclick = () => { if (navigator.vibrate) navigator.vibrate(40); A.medTaken(m.id); say('Danke.'); toast('Danke! ' + m.text + ' ist erledigt.'); refreshCare(); };
     c.append(b); box.append(c);
   }
+  waCards(box);
   box.classList.toggle('none', !box.children.length);
 }
+
+/* ---------- new WhatsApp messages: a big card, then a big page to read and answer ---------- */
+let waMsgs = [], curMsg = null;
+function waCards(box) {
+  waMsgs = [];
+  if (!C.waMsgs || !A.hasWhatsApp() || !A.notesOn()) return;
+  try { waMsgs = JSON.parse(A.waMessages(C.waMsgsFamily !== false)); } catch (e) { waMsgs = []; }
+  for (const m of waMsgs.slice(0, 3)) {
+    const c = el('button', 'wacard lg');
+    c.innerHTML = '<b>Nachricht von ' + esc(m.who) + '</b><span>' + esc(m.text) + '</span>';
+    c.onclick = () => openMsg(m);
+    box.append(c);
+  }
+  // the message was read in WhatsApp meanwhile: the page shows the newest text, or closes if nobody is answering
+  if (curMsg) {
+    const now = waMsgs.find(m => m.key === curMsg.key);
+    if (now) { curMsg = now; $('#mText').textContent = now.text; }
+    else if ($('#mReply').hidden) closeMsg();
+  }
+}
+function timeAgo(t) {
+  const d = new Date(t), now = new Date(), min = Math.round((now - d) / 60000);
+  if (min < 1) return 'gerade eben';
+  if (min < 60) return 'vor ' + min + (min === 1 ? ' Minute' : ' Minuten');
+  return (d.toDateString() === now.toDateString() ? 'heute' : DAYS[d.getDay()]) + ', ' + d.getHours() + ':' + pad2(d.getMinutes()) + ' Uhr';
+}
+function openMsg(m) {
+  curMsg = m;
+  $('#mWho').textContent = m.who;
+  $('#mWhen').textContent = timeAgo(m.time);
+  $('#mText').textContent = m.text;
+  $('#mReply').hidden = true; $('#mTa').value = '';
+  msgActs();
+  $('#mview').classList.add('open'); $('#mview').scrollTop = 0;
+  LG.scan($('#mview'));
+  if (C.speak) say('Nachricht von ' + m.who + ': ' + m.text);
+}
+function msgActs() {
+  const box = $('#mActs'); box.textContent = '';
+  const add = (cls, icon, title, sub, fn) => {
+    const b = el('button', 'act lg ' + cls);
+    b.innerHTML = '<span class="chip">' + icon + '</span><span>' + esc(title) + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span>';
+    b.onclick = fn; box.append(b);
+  };
+  const m = curMsg;
+  if ($('#mReply').hidden) {
+    add('call', ICON.speak, 'Vorlesen', '', () => A.speak('Nachricht von ' + m.who + ': ' + m.text));
+    if (m.reply) add('wa', ICON.wa, 'Antworten', 'Schreiben oder sprechen', () => { $('#mReply').hidden = false; msgActs(); quick(); setTimeout(() => $('#mTa').focus(), 50); });
+    add('wacall', ICON.done, 'Gelesen', 'Die Nachricht weglegen', () => { A.waRead(m.key); toast('Erledigt.'); closeMsg(); setTimeout(refreshCare, 600); });
+    add('sms', ICON.open, 'In WhatsApp öffnen', '', () => { const k = m.key; closeMsg(); launch(() => A.waOpen(k), 'WhatsApp wird geöffnet …', 'WhatsApp ließ sich nicht öffnen.'); });
+  } else {
+    add('wa', ICON.wa, 'Senden', 'an ' + m.who, sendReply);
+    add('call', ICON.mic, 'Sprechen', 'Das Handy schreibt mit', () => A.listen());
+  }
+}
+function quick() {
+  const q = $('#mQuick'); q.textContent = '';
+  ['Ja 👍', 'Nein', 'Danke ❤️', 'Ich rufe dich gleich an', 'Bis bald!'].forEach(t => {
+    const b = el('button', '', t); b.onclick = () => { const ta = $('#mTa'); ta.value = (ta.value ? ta.value.trim() + ' ' : '') + t; }; q.append(b);
+  });
+}
+function sendReply() {
+  const t = $('#mTa').value.trim();
+  if (!t) { toast('Bitte zuerst eine Antwort schreiben oder sprechen.'); return; }
+  if (A.waReply(curMsg.key, t)) { toast('Die Antwort an ' + curMsg.who + ' ist gesendet.'); say('Gesendet.'); closeMsg(); setTimeout(refreshCare, 800); }
+  else toast('Das hat nicht geklappt. Bitte in WhatsApp antworten.');
+}
+window.onHeard = function (t) {
+  if (t === null) { toast('Sprechen geht auf diesem Handy nicht. Bitte die Tastatur benutzen.'); return; }
+  if (!t) return;
+  const ta = $('#mTa'); ta.value = (ta.value ? ta.value.trim() + ' ' : '') + t;
+};
+function closeMsg() { $('#mview').classList.remove('open'); curMsg = null; $('#mReply').hidden = true; }
+function msgBack() { if (!$('#mReply').hidden) { $('#mReply').hidden = true; msgActs(); } else closeMsg(); }
+$('#mBack').onclick = msgBack;
 function careOn() { return C.care && C.care.on; }
 function renderCareBtns() {
   const box = $('#care'); box.textContent = '';
@@ -1546,8 +1711,10 @@ function moreHTML() {
   h += '<label class="chk"><input type="checkbox" data-opt="badges"' + (C.badges ? ' checked' : '') + '> Rote Zahl auf den Kacheln bei verpassten Anrufen und neuen WhatsApp-Nachrichten</label>';
   h += '<label class="chk"><input type="checkbox" data-opt="readAloud"' + (C.readAloud ? ' checked' : '') + '> Neue Nachrichten vorlesen (WhatsApp und SMS)</label>';
   if (C.readAloud) h += '<label class="chk"><input type="checkbox" data-opt="readFamilyOnly"' + (C.readFamilyOnly !== false ? ' checked' : '') + '> Nur Nachrichten von der Familie vorlesen</label>';
+  h += '<label class="chk"><input type="checkbox" data-opt="waMsgs"' + (C.waMsgs ? ' checked' : '') + '> Neue WhatsApp-Nachrichten groß auf dem Startbildschirm, mit „Antworten“</label>';
+  if (C.waMsgs) h += '<label class="chk"><input type="checkbox" data-opt="waMsgsFamily"' + (C.waMsgsFamily !== false ? ' checked' : '') + '> Nur Nachrichten von der Familie zeigen</label>';
   if (C.badges) h += permRow('calllog', 'Verpasste Anrufe sehen erlauben', 'Verpasste Anrufe werden gezählt.');
-  if (C.badges || C.readAloud) h += A.notesOn() ? '<p class="ok">✓ Benachrichtigungen werden gelesen (nur auf dem Handy, nichts wird verschickt).</p>'
+  if (C.badges || C.readAloud || C.waMsgs || C.waCalls) h += A.notesOn() ? '<p class="ok">✓ Benachrichtigungen werden gelesen (nur auf dem Handy, nichts wird verschickt).</p>'
     : '<div class="warnbox"><p style="margin-top:0">Dafür muss Großer Start die Benachrichtigungen lesen dürfen. Auf der nächsten Seite „Großer Start“ einschalten.</p>' +
       '<div class="row"><button class="btn pri" data-act="notes">Benachrichtigungen lesen erlauben</button></div>' +
       '<p class="note">Ist der Schalter grau? Dann unter <a href="#" data-act="appinfo">App-Info</a> oben rechts ⋮ → „Eingeschränkte Einstellungen zulassen“ wählen und noch einmal versuchen.</p></div>';
@@ -1576,6 +1743,18 @@ function moreHTML() {
       '<div class="row"><button class="btn" data-act="phoneback">Wieder die Telefon-App des Handys verwenden</button></div><p class="note" style="margin:0 6px">Dort unter „Telefon-App“ die bisherige App wählen.</p>'
     : '<p class="note" style="margin:0 6px 8px">Großer Start wird dafür die Telefon-App des Handys. Das Klingeln kommt weiter vom Handy; nur der Bildschirm beim Anruf wird groß und einfach. Jederzeit hier wieder umstellbar.</p>' +
       '<div class="row"><button class="btn pri" data-act="bigcalls">Großen Anruf-Bildschirm einschalten</button></div>';
+  // WhatsApp calls coming in
+  h += '<h3 style="margin-top:16px">WhatsApp-Anrufe</h3>';
+  h += '<label class="chk"><input type="checkbox" data-opt="waCalls"' + (C.waCalls ? ' checked' : '') + '> WhatsApp-Anrufe groß anzeigen: Foto, Name und riesiges „Annehmen“ und „Ablehnen“, im Gespräch oben ein großes „Auflegen“</label>';
+  if (C.waCalls) {
+    h += '<label class="chk"><input type="checkbox" data-opt="waAuto"' + (C.waAuto ? ' checked' : '') + '> Anrufe von der Familie nach 5 Sekunden von selbst annehmen</label>';
+    if (C.waAuto) h += '<p class="note" style="margin:0 6px 8px">Dann geht das Gespräch auch an, wenn niemand am Handy ist. Bitte mit der Familie absprechen.</p>';
+    h += permRow('overlay', 'Über anderen Apps anzeigen erlauben', 'Der Anruf-Bildschirm darf über WhatsApp erscheinen.');
+    if (!A.has('overlay')) h += '<p class="note" style="margin:0 6px 8px">Auf der nächsten Seite „Großer Start“ wählen und den Schalter einschalten.</p>';
+    if (!A.notesOn()) h += '<p class="note" style="margin:0 6px 8px">Außerdem oben unter „Nachrichten und Anrufe“ das Lesen der Benachrichtigungen erlauben.</p>';
+    h += '<p class="note" style="margin:0 6px 8px">Das Gespräch selbst läuft weiter in WhatsApp. Großer Start drückt nur die Knöpfe von WhatsApp; am WhatsApp-Konto ändert sich nichts. ' +
+      'Nach einem WhatsApp-Update bitte einmal ausprobieren.</p>';
+  }
   // advanced care
   h += '<h3>Erweiterte Betreuung</h3>';
   if (!careOn()) {
@@ -1691,6 +1870,7 @@ window.appBack = function () {
   else if ($('#pin').classList.contains('open')) closePin();
   else if ($('#setup').classList.contains('open')) closeSetup();
   else if (curPerson) closePerson();
+  else if ($('#mview').classList.contains('open')) msgBack();
   else if ($('#drawer').classList.contains('open')) closeDrawer();
   else if ($('#wview').classList.contains('open')) closeWidget();
   else if ($('#lupe').classList.contains('open')) closeLupe();

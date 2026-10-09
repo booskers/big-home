@@ -29,10 +29,18 @@ A simple home screen (Android launcher) for older people, in German (polite "Sie
 - **Erweiterte Betreuung** (behind a warning: the phone may contact family members by itself): "Mir geht's gut" with a
   daily deadline, a "Hilfe" button (hold 3 s: SMS with the location to the chosen people, then a call; not a
   replacement for 112), and an SMS when a reminder wasn't confirmed. Needs SMS (and for Hilfe, location) permission.
+- **On top of WhatsApp, never instead of it** (optional): incoming WhatsApp calls get the big ringing screen (Annehmen /
+  Ablehnen press WhatsApp's own notification buttons; family can be answered automatically after 5 s), a big
+  "Auflegen" bar floats on top during the call, and new messages appear as big cards to read aloud and answer (typed,
+  dictated or a ready answer, sent through WhatsApp's own reply field). Nothing talks to WhatsApp's servers, so the
+  account is not at risk; the call itself still runs in WhatsApp's screen. Needs notification access and "display over
+  other apps", and should be tried again after WhatsApp updates.
 - Android 13+: reading notifications for sideloaded apps may need App-Info → ⋮ → "Eingeschränkte Einstellungen
   zulassen" first.
-- **A tap on a person** opens three big buttons: **WhatsApp** (opens the chat with that person), **Anrufen** (calls
-  straight away once allowed) and **SMS**. A big "Zurück" button returns to the front page, and so does doing nothing
+- **A tap on a person** opens big buttons: **WhatsApp** (opens the chat with that person), **Anrufen** (calls
+  straight away once allowed), optionally **WhatsApp-Anruf** and **Videoanruf** (one tap, through WhatsApp's own
+  contact entries), and **SMS**. "Anrufen über" in the settings chooses phone, WhatsApp, video or any mix for everyone;
+  each person can differ under "Ändern". A big "Zurück" button returns to the front page, and so does doing nothing
   for 90 seconds or coming back from a call.
 - **Can't get lost:** once chosen as the phone's Home app, the Home button always comes back here, Back on the front
   page does nothing, and long presses do nothing.

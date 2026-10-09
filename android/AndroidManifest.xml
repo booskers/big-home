@@ -3,8 +3,8 @@
      shipped inside the app; this is one activity that is the phone's Home app once chosen. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cc.polychrome.bighome"
-    android:versionCode="10"
-    android:versionName="1.9.0">
+    android:versionCode="11"
+    android:versionName="1.10.0">
 
     <!-- Android 7 and newer: covers the older Samsung phones -->
     <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="35" />
@@ -40,6 +40,8 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- "WhatsApp-Anrufe groß anzeigen": the ringing screen over other apps, and the big "Auflegen" during the call -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
@@ -118,6 +120,10 @@
         </service>
         <activity android:name=".Phone$Screen" android:exported="false" android:launchMode="singleInstance" android:excludeFromRecents="true"
             android:taskAffinity="cc.polychrome.bighome.call" android:screenOrientation="portrait" android:theme="@style/CallTheme"
+            android:showWhenLocked="true" android:turnScreenOn="true" />
+        <!-- a ringing WhatsApp call, big (only once "WhatsApp-Anrufe groß anzeigen" is on) -->
+        <activity android:name=".WhatsApp$Ring" android:exported="false" android:launchMode="singleInstance" android:excludeFromRecents="true"
+            android:taskAffinity="cc.polychrome.bighome.wacall" android:screenOrientation="portrait" android:theme="@style/CallTheme"
             android:showWhenLocked="true" android:turnScreenOn="true" />
         <activity android:name=".Phone$Dial" android:exported="true" android:label="Wählen" android:theme="@style/CallTheme"
             android:screenOrientation="portrait">

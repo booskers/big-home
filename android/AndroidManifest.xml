@@ -3,8 +3,8 @@
      shipped inside the app; this is one activity that is the phone's Home app once chosen. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cc.polychrome.bighome"
-    android:versionCode="8"
-    android:versionName="1.7.0">
+    android:versionCode="9"
+    android:versionName="1.8.0">
 
     <!-- Android 7 and newer: covers the older Samsung phones -->
     <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="35" />
@@ -15,6 +15,8 @@
     <!-- the "Deinstallieren" button in the settings -->
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Wecker and Kurzzeitwecker: set in the phone's own clock app -->
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
     <!-- updates from the app's GitHub releases, installed quietly while the screen is off -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />

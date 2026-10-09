@@ -19,6 +19,10 @@ A simple home screen (Android launcher) for older people, in German (polite "Sie
 - **Alle Apps:** a swipe from right to left (or the "Alle Apps" button) shows all apps as big icons with names;
   the settings can hide apps from it or switch the swipe off. **Taschenlampe:** a flashlight button that switches
   itself off after 15 minutes.
+- **Helfer:** Wecker, Kurzzeitwecker and Stoppuhr as big widgets (switched on in the settings). Alarm and timer go
+  into the phone's own clock app, which rings reliably; the stopwatch keeps counting while the app is closed.
+- **Größe:** "Größe anpassen" in the settings scales everything (60–150 %) with big Kleiner / Größer buttons while the
+  front page is visible; the family grid gets more columns as the size goes down.
 - **A tap on a person** opens three big buttons: **WhatsApp** (opens the chat with that person), **Anrufen** (calls
   straight away once allowed) and **SMS**. A big "Zurück" button returns to the front page, and so does doing nothing
   for 90 seconds or coming back from a call.

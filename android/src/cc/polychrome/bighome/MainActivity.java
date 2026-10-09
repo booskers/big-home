@@ -2,7 +2,11 @@ package cc.polychrome.bighome;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.WallpaperManager;
+import android.provider.AlarmClock;
+import java.util.ArrayList;
+import java.util.Arrays;
 import android.app.role.RoleManager;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -549,6 +553,36 @@ public class MainActivity extends Activity {
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT).setType("image/*").addCategory(Intent.CATEGORY_OPENABLE);
                 try { startActivityForResult(i, REQ_PHOTO); } catch (ActivityNotFoundException e) { /* no gallery */ }
             });
+        }
+
+        // the alarm and the kitchen timer live in the phone's own clock app, which rings reliably (also locked)
+        @JavascriptInterface public boolean setAlarm(int hour, int minute, String label, boolean daily) {
+            Intent i = new Intent(AlarmClock.ACTION_SET_ALARM)
+                .putExtra(AlarmClock.EXTRA_HOUR, hour).putExtra(AlarmClock.EXTRA_MINUTES, minute)
+                .putExtra(AlarmClock.EXTRA_SKIP_UI, true).putExtra(AlarmClock.EXTRA_VIBRATE, true);
+            if (label != null && !label.isEmpty()) i.putExtra(AlarmClock.EXTRA_MESSAGE, label);
+            if (daily) i.putExtra(AlarmClock.EXTRA_DAYS, new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7)));
+            return start(i);
+        }
+
+        @JavascriptInterface public boolean setTimer(int seconds, String label) {
+            Intent i = new Intent(AlarmClock.ACTION_SET_TIMER).putExtra(AlarmClock.EXTRA_LENGTH, seconds)
+                .putExtra(AlarmClock.EXTRA_SKIP_UI, true);
+            if (label != null && !label.isEmpty()) i.putExtra(AlarmClock.EXTRA_MESSAGE, label);
+            return start(i);
+        }
+
+        /** when the next alarm of any clock app rings (milliseconds), or 0 */
+        @JavascriptInterface public long nextAlarm() {
+            AlarmManager am = getSystemService(AlarmManager.class);
+            AlarmManager.AlarmClockInfo n = am == null ? null : am.getNextAlarmClock();
+            return n == null ? 0 : n.getTriggerTime();
+        }
+
+        @JavascriptInterface public void showAlarms() { runOnUiThread(() -> start(new Intent(AlarmClock.ACTION_SHOW_ALARMS))); }
+
+        @JavascriptInterface public void showTimers() {
+            runOnUiThread(() -> { if (Build.VERSION.SDK_INT < 26 || !start(new Intent(AlarmClock.ACTION_SHOW_TIMERS))) start(new Intent(AlarmClock.ACTION_SHOW_ALARMS)); });
         }
 
         @JavascriptInterface public boolean hasTorch() { return torchId != null; }

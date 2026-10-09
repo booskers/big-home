@@ -6,7 +6,10 @@
 <title>Großer Start</title>
 <style>
 :root{
-  --it:0px; --ib:0px; --il:0px; --ir:0px;   /* status bar, navigation bar, sides: set by the app (setInsets) */
+  --it:0px; --ib:0px; --il:0px; --ir:0px;
+  --ui:1;   /* "Größe" in the settings: everything the senior uses is scaled by it */
+  --zit:calc(var(--it) / var(--ui)); --zib:calc(var(--ib) / var(--ui)); --zil:calc(var(--il) / var(--ui)); --zir:calc(var(--ir) / var(--ui));
+  --tmin:130px;   /* status bar, navigation bar, sides: set by the app (setInsets) */
   --ink:#1c1c1e; --sub:#3c3c43;
   /* glass: tinted dark enough that white text stays readable on any wallpaper */
   --glass:rgba(22,24,32,.38); --glass-strong:rgba(16,18,26,.48); --glass-light:rgba(255,255,255,.1);
@@ -51,11 +54,11 @@ button:active{transform:scale(.96);filter:brightness(1.08)}
   background:var(--lgspec,none) 0 0/100% 100% no-repeat;opacity:.55}
 
 /* the front page */
-#home{padding:calc(var(--it) + 8px) calc(var(--ir) + 16px) calc(var(--ib) + 28px) calc(var(--il) + 16px);max-width:680px;margin:0 auto}
+#home{zoom:var(--ui);padding:calc(var(--zit) + 8px) calc(var(--zir) + 16px) calc(var(--zib) + 28px) calc(var(--zil) + 16px);max-width:680px;margin:0 auto}
 #top{text-align:center;padding:10px 0 20px;touch-action:none;position:relative;text-shadow:0 2px 14px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.6)}
-#date{font-size:min(7vw,32px);font-weight:600;letter-spacing:.01em;opacity:.97}
-#time{font-size:min(31vw,156px);font-weight:700;line-height:.95;letter-spacing:-.045em;font-variant-numeric:tabular-nums;margin-top:2px}
-#bat{display:inline-flex;align-items:center;gap:12px;margin-top:14px;font-size:min(6.6vw,28px);font-weight:700;padding:9px 20px 9px 16px;
+#date{font-size:min(calc(7vw / var(--ui)),32px);font-weight:600;letter-spacing:.01em;opacity:.97}
+#time{font-size:min(calc(31vw / var(--ui)),156px);font-weight:700;line-height:.95;letter-spacing:-.045em;font-variant-numeric:tabular-nums;margin-top:2px}
+#bat{display:inline-flex;align-items:center;gap:12px;margin-top:14px;font-size:min(calc(6.6vw / var(--ui)),28px);font-weight:700;padding:9px 20px 9px 16px;
   border-radius:999px;background:var(--glass);box-shadow:var(--depth);text-shadow:none}
 #bat.low{background:linear-gradient(180deg,#e8434f,#b31b27)}
 #bat.charging .batico i{background:#5ee08a}
@@ -68,40 +71,68 @@ button:active{transform:scale(.96);filter:brightness(1.08)}
 #hold span{background:rgba(255,255,255,.92);border-radius:50%;width:128px;height:128px;display:flex;align-items:center;justify-content:center;padding:8px}
 
 /* family: every tile a rounded square; a face fills it, otherwise initials on a rich colour, the name on a glass strip */
-#people{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#people{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--tmin),1fr));gap:16px}
 #people.one{grid-template-columns:1fr}
-.tile{aspect-ratio:1/1;border:0;padding:0;border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--depth);background:#2a2d38;color:#fff;display:block;text-align:center}
+.tile{container-type:inline-size;aspect-ratio:1/1;border:0;padding:0;border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--depth);background:#2a2d38;color:#fff;display:block;text-align:center}
 .av{background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex:none;
   text-shadow:0 2px 8px rgba(0,0,0,.25);letter-spacing:-.02em}
 #people.one .tile{aspect-ratio:16/11}
-.tile .av{position:absolute;top:0;left:0;right:0;bottom:0;font-size:min(17vw,86px)}
+.tile .av{position:absolute;top:0;left:0;right:0;bottom:0;font-size:min(46cqw,110px)}
 /* no photo: the initials sit high, the name has the lower part to itself (two lines fit) */
-.tile:not(.face) .av{align-items:flex-start;padding-top:11%;font-size:min(14vw,72px)}
+.tile:not(.face) .av{align-items:flex-start;padding-top:9%;font-size:min(38cqw,92px)}
 .tile .nm{position:absolute;left:8px;right:8px;bottom:8px;z-index:1;padding:8px 8px 9px;border-radius:calc(var(--r-xl) - 8px);
-  background:var(--glass-strong);font-size:min(6.6vw,30px);font-weight:700;line-height:1.1;overflow-wrap:anywhere}
+  background:var(--glass-strong);font-size:min(15cqw,34px);font-weight:700;line-height:1.1;-webkit-hyphens:auto;hyphens:auto;overflow-wrap:break-word}
+/* the tile's own size sets the text inside it (cqw), so names and letters fit at every size and column count */
+.tile .nm{left:6cqw;right:6cqw;bottom:6cqw;padding:3cqw 3cqw 4cqw;border-radius:calc(var(--r-xl) - 6cqw)}
 
 #apps{display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px}
 #apps:empty{display:none}
 .app.wa{display:flex;align-items:center;justify-content:center;gap:16px;border:0;border-radius:999px;min-height:112px;padding:12px 28px;
-  background:rgba(16,122,62,.8);color:#fff;font-size:min(9vw,40px);font-weight:700;box-shadow:var(--depth)}
-.app.wa svg{width:64px;height:64px;flex:none}
+  background:rgba(16,122,62,.8);color:#fff;font-size:min(calc(9vw / var(--ui)),40px);font-weight:700;box-shadow:var(--depth)}
+.app.wa svg{width:min(64px,calc(15vw / var(--ui)));height:min(64px,calc(15vw / var(--ui)));flex:none}
 /* flashlight and "Alle Apps": two glass pills side by side */
 #tools{display:flex;gap:16px;margin-top:16px}
 #tools.none{display:none}
 .pill{position:relative;isolation:isolate;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:0;
-  border-radius:var(--r-xl);min-height:112px;padding:12px 10px;background:var(--glass);color:#fff;font-size:min(6vw,26px);font-weight:700;line-height:1.1;text-align:center}
+  border-radius:var(--r-xl);min-height:112px;padding:12px 10px;background:var(--glass);color:#fff;font-size:min(calc(6vw / var(--ui)),26px);font-weight:700;line-height:1.1;text-align:center}
 .pill svg{width:42px;height:42px;flex:none}
 .pill.on{background:rgba(255,214,10,.92);color:#1c1c1e}
+/* helpers: alarm, kitchen timer, stopwatch */
+#widgets{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:12px;margin-top:16px}
+#widgets .pill{font-size:min(calc(5.2vw / var(--ui)),24px);padding:12px 6px}
+#widgets.none{display:none}
+.pill small{display:block;font-size:.72em;font-weight:600;opacity:.92;margin-top:2px;font-variant-numeric:tabular-nums}
+.pill.live{background:rgba(255,214,10,.92);color:#1c1c1e}
+#wview{zoom:var(--ui);padding:calc(var(--zit) + 14px) calc(var(--zir) + 16px) calc(var(--zib) + 16px) calc(var(--zil) + 16px);align-items:center}
+#wview > :not(.vbg){width:100%;max-width:560px}
+#wview h2{font-size:min(calc(9vw / var(--ui)),40px);margin:6px 0 14px;font-weight:700;text-align:center}
+#wBody{flex:1;display:flex;flex-direction:column;gap:14px}
+.wbig{font-size:min(calc(24vw / var(--ui)),120px);font-weight:700;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:-.03em;line-height:1}
+.wnote{font-size:21px;line-height:1.4;text-align:center;opacity:.95;margin:0}
+.wbtn{min-height:84px;border:0;border-radius:var(--r-xl);font-size:min(calc(7.5vw / var(--ui)),32px);font-weight:700;color:#fff;background:var(--glass-light);position:relative;isolation:isolate}
+.wbtn.go{background:rgba(16,122,62,.85)} .wbtn.stop{background:rgba(176,80,12,.88)} .wbtn.blue{background:rgba(30,80,190,.85)}
+.tset{display:flex;align-items:center;justify-content:center;gap:10px}
+.tcol{display:flex;flex-direction:column;align-items:center;gap:8px}
+.tcol button{width:96px;height:64px;border:0;border-radius:22px;background:var(--glass-light);color:#fff;font-size:30px;position:relative;isolation:isolate}
+.tcol div{font-size:min(calc(22vw / var(--ui)),104px);font-weight:700;font-variant-numeric:tabular-nums;min-width:1.25em;text-align:center;line-height:1}
+.colon{font-size:min(calc(20vw / var(--ui)),90px);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.chips button{min-height:60px;padding:8px 20px;border:0;border-radius:999px;background:var(--glass-light);color:#fff;font-size:22px;font-weight:600}
+.chips button[aria-pressed="true"]{background:#fff;color:#1c1c1e}
+.presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.presets button{min-height:96px;border:0;border-radius:var(--r-l);background:var(--glass-light);color:#fff;font-size:min(calc(7vw / var(--ui)),30px);font-weight:700;line-height:1.1;position:relative;isolation:isolate}
+.presets small{display:block;font-size:.6em;font-weight:600}
+
 /* all apps: a page that slides in from the right */
-#drawer{padding:calc(var(--it) + 12px) calc(var(--ir) + 14px) calc(var(--ib) + 14px) calc(var(--il) + 14px);transition:transform .32s var(--ease)}
+#drawer{zoom:var(--ui);padding:calc(var(--zit) + 12px) calc(var(--zir) + 14px) calc(var(--zib) + 14px) calc(var(--zil) + 14px);transition:transform .32s var(--ease)}
 #drawer.open{animation:slidein .32s var(--ease)}
 @keyframes slidein{from{transform:translateX(100%)}to{transform:none}}
-#drawer h2{font-size:min(9vw,40px);margin:4px 6px 14px;font-weight:700}
+#drawer h2{font-size:min(calc(9vw / var(--ui)),40px);margin:4px 6px 14px;font-weight:700}
 #dGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 10px;flex:1;align-content:start}
 @media (min-width:600px){ #dGrid{grid-template-columns:repeat(5,minmax(0,1fr))} }
 .dapp{background:none;border:0;padding:4px;display:flex;flex-direction:column;align-items:center;gap:8px;color:#fff;touch-action:pan-y;
   font-size:18px;font-weight:600;line-height:1.15;text-align:center;text-shadow:0 1px 4px rgba(0,0,0,.6)}
-.dapp img,.dapp .noimg{width:min(22vw,92px);height:min(22vw,92px)}
+.dapp img,.dapp .noimg{width:min(calc(22vw / var(--ui)),92px);height:min(calc(22vw / var(--ui)),92px)}
 .dapp .noimg{border-radius:28%;background:#fff;color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:700;text-shadow:none}
 .dapp span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;-webkit-hyphens:auto;hyphens:auto;overflow-wrap:break-word;max-width:100%}
 #drawer .back{margin-top:16px}
@@ -114,45 +145,54 @@ button:active{transform:scale(.96);filter:brightness(1.08)}
 .icon{position:relative;z-index:3;background:none;border:0;padding:6px;display:flex;align-items:center;justify-content:center;touch-action:pan-y}
 .icon img{width:100%;max-width:160px;aspect-ratio:1/1}
 .icon .noimg{width:100%;max-width:160px;aspect-ratio:1/1;border-radius:28%;background:#fff;color:var(--ink);box-shadow:var(--depth);
-  display:flex;align-items:center;justify-content:center;font-size:min(16vw,80px);font-weight:700}
+  display:flex;align-items:center;justify-content:center;font-size:min(calc(16vw / var(--ui)),80px);font-weight:700}
 #empty{background:var(--glass-strong);border-radius:var(--r-l);padding:20px;font-size:22px;line-height:1.45;text-align:center;display:none;box-shadow:var(--depth)}
 
 /* wide screens (an unfolded phone, a tablet) */
 @media (min-width:600px){
   #home{max-width:1100px}
-  #people,#dock{grid-template-columns:repeat(3,1fr)}
-  #time{font-size:min(20vw,25vh,170px)}
+  :root{--tmin:190px}
+  #dock{grid-template-columns:repeat(3,1fr)}
+  #time{font-size:min(calc(20vw / var(--ui)),calc(25vh / var(--ui)),170px)}
 }
-@media (min-width:900px){ #people,#dock{grid-template-columns:repeat(4,1fr)} }
+@media (min-width:900px){ #dock{grid-template-columns:repeat(4,1fr)} }
 
 /* one person: a contact card, then WhatsApp, call, SMS as big glass buttons */
 .view{position:fixed;top:0;left:0;right:0;bottom:0;z-index:100;background:rgba(8,10,18,.62);display:none;flex-direction:column;overflow:auto}
 .view.open{display:flex;animation:rise .32s var(--ease)}
 /* behind a person's buttons: the background picture, softly out of focus (the buttons' glass bends it);
    with the phone's wallpaper instead, the front page is blurred */
-html:not(.hasbg) .view:not(#setup){background:rgba(8,10,18,.92)}
+html:not(.hasbg) .view:not(#setup){background:rgba(8,10,18,.45)}
+html:not(.hasbg).dim #home{filter:blur(14px) brightness(.6)}
+html.sizing #home{pointer-events:none}
+#sizebar{position:fixed;left:12px;right:12px;bottom:calc(var(--ib) + 12px);z-index:400;display:none;align-items:center;gap:10px;padding:12px;
+  border-radius:var(--r-xl);background:rgba(20,22,30,.94);color:#fff}
+html.sizing #sizebar{display:flex}
+#sizebar button{flex:1;min-height:72px;border:0;border-radius:22px;background:rgba(255,255,255,.16);color:#fff;font-size:26px;font-weight:700}
+#sizebar #sizeDone{background:var(--blue)}
+#sizeVal{min-width:84px;text-align:center;font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}
 html.hasbg .view:not(#setup){background:transparent}
 .vbg{position:fixed;top:0;left:0;right:0;bottom:0;z-index:-1;pointer-events:none;display:none;
   background:linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.5)),var(--bgsoft,var(--bgimg)) center/cover no-repeat}
 html.hasbg .vbg{display:block}
 @keyframes rise{from{opacity:0;transform:scale(1.03)}to{opacity:1;transform:none}}
-#person,#pin{padding:calc(var(--it) + 14px) calc(var(--ir) + 16px) calc(var(--ib) + 16px) calc(var(--il) + 16px)}
+#person,#pin{zoom:var(--ui);padding:calc(var(--zit) + 14px) calc(var(--zir) + 16px) calc(var(--zib) + 16px) calc(var(--zil) + 16px)}
 #person{align-items:center}
 #person > :not(.vbg){width:100%;max-width:640px}
 #pHead{display:flex;flex-direction:column;align-items:center;gap:10px;margin:4px 0 18px;text-align:center}
-#pHead .av{width:min(36vw,160px);height:min(36vw,160px);border-radius:50%;font-size:min(16vw,72px);
+#pHead .av{width:min(calc(36vw / var(--ui)),160px);height:min(calc(36vw / var(--ui)),160px);border-radius:50%;font-size:min(calc(16vw / var(--ui)),72px);
   box-shadow:0 0 0 1px rgba(255,255,255,.35),var(--depth)}
-#pName{font-size:min(10vw,48px);font-weight:700;line-height:1.05;letter-spacing:-.01em;overflow-wrap:anywhere}
+#pName{font-size:min(calc(10vw / var(--ui)),48px);font-weight:700;line-height:1.05;letter-spacing:-.01em;overflow-wrap:anywhere}
 #acts{flex:1;display:flex;flex-direction:column;gap:14px;margin-bottom:14px}
 .act{flex:1;min-height:100px;max-height:170px;display:flex;align-items:center;gap:20px;border:0;border-radius:var(--r-xl);
-  padding:12px 22px 12px 14px;color:#fff;font-size:min(9vw,42px);font-weight:700;text-align:left;line-height:1.1;box-shadow:var(--depth)}
-.act .chip{width:min(19vw,86px);height:min(19vw,86px);border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;flex:none}
+  padding:12px 22px 12px 14px;color:#fff;font-size:min(calc(9vw / var(--ui)),42px);font-weight:700;text-align:left;line-height:1.1;box-shadow:var(--depth)}
+.act .chip{width:min(calc(19vw / var(--ui)),86px);height:min(calc(19vw / var(--ui)),86px);border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;flex:none}
 .act svg{width:58%;height:58%}
 .act small{display:block;font-size:.5em;font-weight:600;margin-top:5px;opacity:.95}
 .act.wa{background:rgba(16,122,62,.72)}
 .act.call{background:rgba(30,80,190,.72)}
 .act.sms{background:rgba(176,80,12,.74)}
-.back{min-height:80px;border:0;border-radius:999px;background:var(--glass-light);color:#fff;font-size:min(8vw,34px);font-weight:700;
+.back{min-height:80px;border:0;border-radius:999px;background:var(--glass-light);color:#fff;font-size:min(calc(8vw / var(--ui)),34px);font-weight:700;
   display:flex;align-items:center;justify-content:center;gap:12px;flex:none;box-shadow:var(--depth)}
 .back svg{width:40px;height:40px}
 svg.iw{display:block}
@@ -249,6 +289,7 @@ input:focus{outline:3px solid rgba(10,91,216,.5);outline-offset:1px}
   <section id="apps" aria-label="WhatsApp"></section>
   <section id="dock" class="none lg" data-blur="2" aria-label="Apps"></section>
   <section id="tools" aria-label="Taschenlampe und alle Apps"></section>
+  <section id="widgets" class="none" aria-label="Wecker, Kurzzeitwecker und Stoppuhr"></section>
 </main>
 
 <div id="person" class="view" role="dialog" aria-labelledby="pName">
@@ -256,6 +297,13 @@ input:focus{outline:3px solid rgba(10,91,216,.5);outline-offset:1px}
   <div id="pHead"><div class="av"></div><div id="pName"></div></div>
   <div id="acts"></div>
   <button class="back lg" id="pBack"><svg class="i" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Zurück</button>
+</div>
+
+<div id="wview" class="view" role="dialog" aria-labelledby="wTitle">
+  <div class="vbg"></div>
+  <h2 id="wTitle"></h2>
+  <div id="wBody"></div>
+  <button class="back lg" id="wBack" style="margin-top:14px"><svg class="i" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Zurück</button>
 </div>
 
 <div id="drawer" class="view" role="dialog" aria-label="Alle Apps">
@@ -278,6 +326,7 @@ input:focus{outline:3px solid rgba(10,91,216,.5);outline-offset:1px}
   <button class="back lg" id="pinCancel">Abbrechen</button>
 </div>
 
+<div id="sizebar" role="toolbar" aria-label="Größe"><button data-s="-1" aria-label="Kleiner">A−</button><span id="sizeVal"></span><button data-s="1" aria-label="Größer">A+</button><button id="sizeDone">Fertig</button></div>
 <div id="dlg"><div class="panel" id="dlgBody"></div></div>
 <div id="toast" class="lg" role="status" aria-live="polite"></div>
 
@@ -474,6 +523,8 @@ function makeMock() {
     findPhotos(j) { const face = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#9cc3e6"/><circle cx="50" cy="40" r="20" fill="#f1c7a5"/><path d="M14 100c4-26 20-36 36-36s32 10 36 36z" fill="#3d6b4f"/></svg>');
       setTimeout(() => JSON.parse(j).filter(x => x.id === 'p1').forEach(x => onContactPhoto(x.id, face)), 200); },
     listApps() { setTimeout(() => onApps(JSON.stringify(['Kamera', 'Galerie', 'Großes Solitär', 'Bunte Steine', 'Wetter', 'Uhr', 'Rechner', 'Kalender', 'Einstellungen', 'Telefon', 'Nachrichten', 'Chrome', 'YouTube', 'Radio'].map((l, i) => ({ pkg: 'app' + i, label: l, icon: this.appIcon(i % 2 ? 'cam' : 'x') })))), 200); },
+    setAlarm(h, m, l, d) { this._al = new Date(); this._al.setHours(h, m, 0, 0); if (this._al < new Date()) this._al = new Date(+this._al + 864e5); return true; },
+    nextAlarm() { return this._al ? +this._al : 0; }, setTimer: () => true, showAlarms() { say('Wecker-App'); }, showTimers() { say('Timer-App'); },
     hasTorch: () => true, torch(on) { setTimeout(() => onTorch(on), 50); return true; },
     pickContact() { setTimeout(() => onContactPicked(JSON.stringify({ name: 'Neuer Kontakt', number: '+49 30 1234567', photo: '' })), 200); },
     pickPhoto() { say('Foto wählen'); },
@@ -490,8 +541,9 @@ function makeMock() {
 
 /* ---------- settings, kept on the phone ---------- */
 const DEF = { v: 1, people: [], apps: [], showWhatsApp: true, country: '49', speak: false, pin: '', names: false, bgPhone: true,
-  order: ['clock', 'people', 'whatsapp', 'tools', 'apps'], locked: false,
-  drawer: true, allBtn: true, torch: true, hidden: [] };
+  order: ['clock', 'people', 'whatsapp', 'tools', 'widgets', 'apps'], locked: false,
+  wAlarm: false, wTimer: false, wSw: false, sw: { acc: 0, start: 0 }, timerEnd: 0, timerLen: 0,
+  drawer: true, allBtn: true, torch: true, hidden: [], ui: 1 };
 let C, firstRun = false;
 try { C = JSON.parse(A.loadConfig() || 'null'); } catch (e) { C = null; }
 if (!C || !C.v) { C = JSON.parse(JSON.stringify(DEF)); firstRun = true; } else C = Object.assign(JSON.parse(JSON.stringify(DEF)), C);
@@ -512,7 +564,7 @@ window.onBattery = function (level, charging) {
   $('#batTx').textContent = level + ' %' + (charging ? (level >= 100 ? ' – voll' : ' – lädt') : low ? ' – Bitte aufladen' : '');
 };
 try { const b = JSON.parse(A.battery()); onBattery(b.level, b.charging); } catch (e) {}
-tick(); setInterval(tick, 1000);
+tick(); setInterval(() => { tick(); if (window.liveWidgets) liveWidgets(); }, 1000);
 
 /* ---------- pictures of people ---------- */
 const AVC = [['#3569b8', '#24498a'], ['#2a8460', '#1b6046'], ['#b8692e', '#8e4a1a'], ['#7a52ad', '#583986'], ['#b44558', '#8a2c3e'], ['#2a8191', '#1c5f6b']];
@@ -554,7 +606,7 @@ let homeSig = '';
 function renderHome(force) {
   // only when something on the front page changed: rebuilding it all is not free
   const sig = JSON.stringify([C.people.map(p => [p.id, p.name, (p.photo || '').length, (p.photo || '').slice(-24), p.wa, p.call, p.sms]), C.apps.map(a => a.pkg),
-    C.order, C.names, C.showWhatsApp, C.allBtn, C.torch, C.drawer, torchOn, A.hasWhatsApp(), C.apps.map(a => A.appInstalled(a.pkg))]);
+    C.order, C.names, C.showWhatsApp, C.allBtn, C.torch, C.drawer, C.wAlarm, C.wTimer, C.wSw, torchOn, A.hasWhatsApp(), C.apps.map(a => A.appInstalled(a.pkg))]);
   if (!force && sig === homeSig) return;
   homeSig = sig;
   placeBlocks();
@@ -589,6 +641,7 @@ function renderHome(force) {
     dock.append(b);
   }
   renderTools();
+  renderWidgets();
   LG.scan();
   $('#empty').style.display = C.people.length || C.apps.length ? 'none' : 'block';
 }
@@ -756,14 +809,14 @@ function itemHTML(i, n, avHTML, title, sub, editable, fixed) {
 }
 
 /* the front page's blocks, in the order chosen in the settings */
-const BLOCKS = { clock: 'Uhrzeit, Datum und Akku', people: 'Familie', whatsapp: 'WhatsApp', tools: 'Taschenlampe und „Alle Apps“', apps: 'Apps' };
+const BLOCKS = { clock: 'Uhrzeit, Datum und Akku', people: 'Familie', whatsapp: 'WhatsApp', tools: 'Taschenlampe und „Alle Apps“', widgets: 'Wecker, Kurzzeitwecker, Stoppuhr', apps: 'Apps' };
 function fixOrder() {
   const o = (Array.isArray(C.order) ? C.order : []).filter(k => k in BLOCKS);
   for (const k of Object.keys(BLOCKS)) if (!o.includes(k)) o.push(k);
   C.order = [...new Set(o)];
 }
 function placeBlocks() {
-  const home = $('#home'), el = { clock: $('#top'), people: $('#people'), whatsapp: $('#apps'), tools: $('#tools'), apps: $('#dock') };
+  const home = $('#home'), el = { clock: $('#top'), people: $('#people'), whatsapp: $('#apps'), tools: $('#tools'), widgets: $('#widgets'), apps: $('#dock') };
   for (const k of C.order) home.append(el[k]);
   el.clock.after($('#empty'));
 }
@@ -775,6 +828,8 @@ function renderSetup() {
     : '<div class="warnbox"><p style="margin-top:0"><b>Noch nicht der Startbildschirm.</b> Erst danach führt die Home-Taste immer hierher zurück.</p>' +
       '<button class="btn pri" data-act="home">Als Startbildschirm festlegen</button></div>';
 
+  h += '<h3>Größe</h3><div class="row"><button class="btn pri" data-act="size">Größe anpassen (' + Math.round(C.ui * 100) + ' %)</button></div>' +
+    '<p class="note" style="margin:0 6px">Zeigt den Startbildschirm mit „Kleiner“ und „Größer“. Bei kleinerer Größe passen mehr Personen nebeneinander.</p>';
   h += '<h3>Anordnung</h3><label class="chk lockrow"><input type="checkbox" data-opt="locked"' + (C.locked ? ' checked' : '') + '> <span><b>Anordnung sperren</b><br><span class="note">' +
     (C.locked ? 'Nichts lässt sich verschieben. Zum Ändern hier entsperren.' : 'Mit ▲ ▼ die Blöcke, Personen und Apps ordnen, dann sperren.') + '</span></span></label>';
   h += '<p class="note" style="margin:10px 6px 6px">Reihenfolge auf dem Startbildschirm, von oben nach unten:</p><div data-list="order">';
@@ -793,6 +848,10 @@ function renderSetup() {
   if (A.hasTorch()) h += '<label class="chk"><input type="checkbox" data-opt="torch"' + (C.torch ? ' checked' : '') + '> Knopf „Taschenlampe“ (geht nach 15 Minuten von selbst aus)</label>';
   h += '<div class="row"><button class="btn" data-act="hideApps">Apps in der Liste auswählen …</button></div>' +
     '<p class="note" style="margin:0 6px">' + (C.hidden.length ? C.hidden.length + ' App' + (C.hidden.length > 1 ? 's sind' : ' ist') + ' ausgeblendet.' : 'Alle Apps werden gezeigt.') + '</p>';
+  h += '<h3>Helfer auf dem Startbildschirm</h3>';
+  h += '<label class="chk"><input type="checkbox" data-opt="wAlarm"' + (C.wAlarm ? ' checked' : '') + '> Wecker (klingelt über die Uhr-App des Handys, auch wenn es gesperrt ist)</label>';
+  h += '<label class="chk"><input type="checkbox" data-opt="wTimer"' + (C.wTimer ? ' checked' : '') + '> Kurzzeitwecker (z. B. für die Küche)</label>';
+  h += '<label class="chk"><input type="checkbox" data-opt="wSw"' + (C.wSw ? ' checked' : '') + '> Stoppuhr</label>';
   h += '<h3>Apps auf dem Startbildschirm</h3>';
   h += '<label class="chk"><input type="checkbox" data-opt="showWhatsApp"' + (C.showWhatsApp ? ' checked' : '') + '> Große WhatsApp-Kachel' +
     (A.hasWhatsApp() ? '' : ' <span class="note">(WhatsApp ist nicht installiert)</span>') + '</label><div data-list="apps">';
@@ -854,6 +913,7 @@ $('#setup').addEventListener('click', e => {
     case 'manual': editPerson(null, {}); break;
     case 'addApp': appPicker(); break;
     case 'hideApps': hideApps(); break;
+    case 'size': startSizing(); break;
     case 'perm': A.askPermissions(); break;
     case 'pin': openPin('set', v => { C.pin = v; save(); renderSetup(); toast('PIN gespeichert'); }); break;
     case 'nopin': C.pin = ''; save(); renderSetup(); break;
@@ -1059,6 +1119,158 @@ function renderTools() {
 }
 window.onTorch = function (on) { torchOn = !!on; renderTools(); LG.scan(); };
 
+/* ---------- helpers: alarm (Wecker), kitchen timer (Kurzzeitwecker), stopwatch (Stoppuhr) ----------
+   The alarm and the timer are set in the phone's own clock app (without showing it): that one rings reliably, also
+   locked and with this app closed. The stopwatch counts here, from a saved start time, so it runs on while away. */
+const ICON_ALARM = '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M5 3 2 6M19 3l3 3"/></svg>';
+const ICON_TIMER = '<svg class="i" viewBox="0 0 24 24"><path d="M6 2h12M6 22h12M7 2c0 5 10 5 10 10S7 17 7 22M17 2c0 5-10 5-10 10s10 5 10 10"/></svg>';
+const ICON_SW = '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="14" r="8"/><path d="M12 14V10M10 2h4M12 2v4M19 6l1.5-1.5"/></svg>';
+const DSHORT = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+const pad2 = n => String(n).padStart(2, '0');
+function swMs() { return C.sw.acc + (C.sw.start ? Date.now() - C.sw.start : 0); }
+function fmtSw(ms, tenths) {
+  const t = Math.floor(ms / 100), s = Math.floor(t / 10), m = Math.floor(s / 60), h = Math.floor(m / 60);
+  return (h ? h + ':' + pad2(m % 60) : m) + ':' + pad2(s % 60) + (tenths ? ',' + (t % 10) : '');
+}
+function timerLeft() { return Math.max(0, C.timerEnd - Date.now()); }
+function fmtLeft(ms) { const s = Math.ceil(ms / 1000), m = Math.floor(s / 60); return (m >= 60 ? Math.floor(m / 60) + ':' + pad2(m % 60) : m) + ':' + pad2(s % 60); }
+function nextAlarmText() {
+  let t = 0; try { t = +A.nextAlarm(); } catch (e) {}
+  if (!t) return 'Kein Wecker';
+  const d = new Date(t), today = new Date(), tomorrow = new Date(Date.now() + 864e5);
+  const day = d.toDateString() === today.toDateString() ? 'Heute' : d.toDateString() === tomorrow.toDateString() ? 'Morgen' : DSHORT[d.getDay()];
+  return day + ' ' + d.getHours() + ':' + pad2(d.getMinutes());
+}
+
+function renderWidgets() {
+  const w = $('#widgets'); w.textContent = '';
+  const add = (id, icon, title, fn) => {
+    const b = el('button', 'pill lg'); b.id = id;
+    b.innerHTML = icon + '<span>' + title + '<small></small></span>';
+    b.onclick = fn; w.append(b);
+  };
+  if (C.wAlarm) add('wgAlarm', ICON_ALARM, 'Wecker', () => openWidget('alarm'));
+  if (C.wTimer) add('wgTimer', ICON_TIMER, 'Kurzzeit&shy;wecker', () => openWidget('timer'));
+  if (C.wSw) add('wgSw', ICON_SW, 'Stoppuhr', () => openWidget('sw'));
+  w.classList.toggle('none', !w.children.length);
+  liveWidgets(true);
+}
+/** the small live texts on the widgets (every second), and the open helper's big numbers */
+let lastAlarmCheck = 0;
+window.liveWidgets = function (all) {
+  const set = (id, txt, live) => { const b = $('#' + id); if (!b) return; const sm = b.querySelector('small'); if (sm.textContent !== txt) sm.textContent = txt; b.classList.toggle('live', !!live); };
+  if (C.wAlarm && (all || Date.now() - lastAlarmCheck > 30000)) { lastAlarmCheck = Date.now(); set('wgAlarm', nextAlarmText()); }
+  if (C.wTimer) { const l = timerLeft(); set('wgTimer', l ? fmtLeft(l) : '', !!l); }
+  if (C.wSw) set('wgSw', swMs() ? fmtSw(swMs()) : '', !!C.sw.start);
+  if ($('#wview').classList.contains('open')) {
+    if (wKind === 'timer' && $('#tLeft')) { const l = timerLeft(); $('#tLeft').textContent = fmtLeft(l); if (!l) setTimeout(() => wKind === 'timer' && drawWidget(), 1200); }
+  }
+};
+
+let wKind = '', swRaf = 0, aH = 7, aM = 0, aLabel = '', aDaily = true;
+function openWidget(kind) {
+  wKind = kind;
+  if (kind === 'alarm') { const d = new Date(); aH = d.getHours() < 12 ? 7 : d.getHours() + 1; aH %= 24; aM = 0; aLabel = ''; aDaily = true; }
+  drawWidget();
+  $('#wview').classList.add('open'); $('#wview').scrollTop = 0;
+  LG.scan($('#wview'));
+}
+function closeWidget() { $('#wview').classList.remove('open'); wKind = ''; cancelAnimationFrame(swRaf); clearInterval(swRaf); liveWidgets(true); }
+$('#wBack').onclick = closeWidget;
+
+function drawWidget() {
+  const b = $('#wBody');
+  if (wKind === 'alarm') {
+    $('#wTitle').textContent = 'Wecker';
+    b.innerHTML =
+      '<div class="tset"><div class="tcol"><button data-t="h+" aria-label="Stunde später">▲</button><div id="aH"></div><button data-t="h-" aria-label="Stunde früher">▼</button></div>' +
+      '<div class="colon">:</div><div class="tcol"><button data-t="m+" aria-label="5 Minuten später">▲</button><div id="aM"></div><button data-t="m-" aria-label="5 Minuten früher">▼</button></div></div>' +
+      '<div class="chips" id="aDays"><button data-d="1">Jeden Tag</button><button data-d="0">Nur einmal</button></div>' +
+      '<div class="chips" id="aLbl"><button data-l="">Ohne Text</button><button data-l="Aufstehen">Aufstehen</button><button data-l="Tabletten nehmen">Tabletten</button><button data-l="Termin">Termin</button></div>' +
+      '<button class="wbtn go lg" id="aSet">Wecker stellen</button>' +
+      '<p class="wnote">Nächster Wecker: <b id="aNext"></b></p>' +
+      '<button class="wbtn lg" id="aAll">Alle Wecker ansehen</button>';
+    const show = () => {
+      $('#aH').textContent = aH; $('#aM').textContent = pad2(aM); $('#aNext').textContent = nextAlarmText();
+      b.querySelectorAll('#aDays button').forEach(x => x.setAttribute('aria-pressed', (x.dataset.d === '1') === aDaily));
+      b.querySelectorAll('#aLbl button').forEach(x => x.setAttribute('aria-pressed', x.dataset.l === aLabel));
+    };
+    b.querySelectorAll('[data-t]').forEach(x => x.onclick = () => {
+      const t = x.dataset.t;
+      if (t === 'h+') aH = (aH + 1) % 24; else if (t === 'h-') aH = (aH + 23) % 24;
+      else if (t === 'm+') aM = (aM + 5) % 60; else aM = (aM + 55) % 60;
+      if (navigator.vibrate) navigator.vibrate(15);
+      show();
+    });
+    b.querySelectorAll('#aDays button').forEach(x => x.onclick = () => { aDaily = x.dataset.d === '1'; show(); });
+    b.querySelectorAll('#aLbl button').forEach(x => x.onclick = () => { aLabel = x.dataset.l; show(); });
+    $('#aSet').onclick = () => {
+      if (A.setAlarm(aH, aM, aLabel, aDaily)) {
+        say('Wecker gestellt auf ' + aH + ' Uhr ' + (aM || ''));
+        toast('Wecker: ' + aH + ':' + pad2(aM) + (aDaily ? ', jeden Tag' : ''));
+        setTimeout(() => { lastAlarmCheck = 0; show(); liveWidgets(true); }, 1500);
+      } else toast('Die Uhr-App ließ sich nicht erreichen.');
+    };
+    $('#aAll').onclick = () => A.showAlarms();
+    show();
+  } else if (wKind === 'timer') {
+    $('#wTitle').textContent = 'Kurzzeitwecker';
+    const l = timerLeft();
+    if (l) {
+      b.innerHTML = '<div class="wbig" id="tLeft">' + fmtLeft(l) + '</div>' +
+        '<p class="wnote">Das Handy klingelt, wenn die Zeit um ist. Auch wenn diese Seite zu ist.</p>' +
+        '<button class="wbtn stop lg" id="tStop">Anhalten …</button>';
+      $('#tStop').onclick = () => { C.timerEnd = 0; save(); A.showTimers(); toast('In der Uhr-App den Kurzzeitwecker anhalten'); };
+    } else {
+      b.innerHTML = '<p class="wnote">Wie lange? Ein Tipp startet ihn.</p><div class="presets">' +
+        [1, 3, 5, 10, 15, 20, 30, 45, 60].map(m => '<button class="lg" data-m="' + m + '">' + m + '<small>' + (m === 1 ? 'Minute' : 'Minuten') + '</small></button>').join('') + '</div>';
+      b.querySelectorAll('[data-m]').forEach(x => x.onclick = () => {
+        const m = +x.dataset.m;
+        if (!A.setTimer(m * 60, 'Kurzzeitwecker')) return toast('Die Uhr-App ließ sich nicht erreichen.');
+        C.timerEnd = Date.now() + m * 60000; C.timerLen = m; save();
+        say('Kurzzeitwecker ' + m + (m === 1 ? ' Minute' : ' Minuten'));
+        drawWidget(); liveWidgets(true); LG.scan($('#wview'));
+      });
+    }
+  } else if (wKind === 'sw') {
+    $('#wTitle').textContent = 'Stoppuhr';
+    const run = !!C.sw.start;
+    b.innerHTML = '<div class="wbig" id="swT">' + fmtSw(swMs(), true) + '</div>' +
+      '<button class="wbtn ' + (run ? 'stop' : 'go') + ' lg" id="swGo">' + (run ? 'Anhalten' : (swMs() ? 'Weiter' : 'Starten')) + '</button>' +
+      (swMs() && !run ? '<button class="wbtn lg" id="swReset">Auf Null</button>' : '');
+    $('#swGo').onclick = () => {
+      if (C.sw.start) { C.sw.acc += Date.now() - C.sw.start; C.sw.start = 0; } else C.sw.start = Date.now();
+      if (navigator.vibrate) navigator.vibrate(30);
+      save(); drawWidget(); LG.scan($('#wview')); liveWidgets(true);
+    };
+    if ($('#swReset')) $('#swReset').onclick = () => { C.sw = { acc: 0, start: 0 }; save(); drawWidget(); LG.scan($('#wview')); liveWidgets(true); };
+    clearInterval(swRaf);
+    if (run) swRaf = setInterval(() => { const e = $('#swT'); if (e) e.textContent = fmtSw(swMs(), true); }, 100);
+  }
+}
+
+/* ---------- size ("Größe"): a factor for everything the senior uses; setup steps aside so it can be seen ---------- */
+const SIZES = [0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5];
+function applySize() {
+  document.documentElement.style.setProperty('--ui', C.ui);
+  $('#sizeVal').textContent = Math.round(C.ui * 100) + ' %';
+}
+function startSizing() { closeSetup(); window.scrollTo(0, 0); document.documentElement.classList.add('sizing'); applySize(); }
+function endSizing() { document.documentElement.classList.remove('sizing'); save(); openSetup(); }
+$('#sizebar').querySelectorAll('[data-s]').forEach(b => b.onclick = () => {
+  let i = SIZES.findIndex(x => Math.abs(x - C.ui) < 0.01); if (i < 0) i = 4;
+  C.ui = SIZES[Math.max(0, Math.min(SIZES.length - 1, i + +b.dataset.s))];
+  if (navigator.vibrate) navigator.vibrate(15);
+  applySize();
+});
+$('#sizeDone').onclick = endSizing;
+
+/* the front page is blurred while a person, the app list or a helper is open (see html.dim in the styles) */
+new MutationObserver(() => {
+  const open = ['#person', '#drawer', '#wview', '#pin'].some(q => $(q).classList.contains('open'));
+  document.documentElement.classList.toggle('dim', open);
+}).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+
 /* ---------- messages ---------- */
 let toastT = 0;
 function toast(t) {
@@ -1069,16 +1281,18 @@ function toast(t) {
 /* ---------- Back and Home (called by the app) ---------- */
 /** Back closes the top-most window. On the front page it does nothing, so nobody can leave it by accident. */
 window.appBack = function () {
+  if (document.documentElement.classList.contains('sizing')) { endSizing(); return true; }
   if ($('#dlg').classList.contains('open')) closeDlg();
   else if ($('#pin').classList.contains('open')) closePin();
   else if ($('#setup').classList.contains('open')) closeSetup();
   else if (curPerson) closePerson();
   else if ($('#drawer').classList.contains('open')) closeDrawer();
+  else if ($('#wview').classList.contains('open')) closeWidget();
   return true;
 };
 /** Home (and leaving the screen): back to the front page; `all` closes the settings too */
 window.goHome = function (all) {
-  closePerson(); holdStop(); closeDrawer();
+  closePerson(); holdStop(); closeDrawer(); closeWidget();
   if ($('#dlg .menu')) closeDlg();
   if (all) { closePin(); if ($('#setup').classList.contains('open')) closeSetup(); }
   window.scrollTo(0, 0);
@@ -1128,6 +1342,7 @@ window.onBackground = function (url) {
 try { setBackground(A.getBackground()); } catch (e) {}
 
 fixOrder();
+applySize();
 renderHome();
 findPhotos();
 LG.scan();

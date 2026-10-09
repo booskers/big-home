@@ -23,6 +23,14 @@ A simple home screen (Android launcher) for older people, in German (polite "Sie
   into the phone's own clock app, which rings reliably; the stopwatch keeps counting while the app is closed.
 - **Größe:** "Größe anpassen" in the settings scales everything (60–150 %) with big Kleiner / Größer buttons while the
   front page is visible; the family grid gets more columns as the size goes down.
+- **More help (all optional, off at first):** badges for missed calls and unread WhatsApp messages; reminders with a
+  big "Erledigt" card; the Lupe (camera magnifier); a Bilderrahmen with the newest photos; reading new messages aloud;
+  and the **Großer Anruf-Bildschirm** (Großer Start as the phone's call app, with a very large call screen).
+- **Erweiterte Betreuung** (behind a warning: the phone may contact family members by itself): "Mir geht's gut" with a
+  daily deadline, a "Hilfe" button (hold 3 s: SMS with the location to the chosen people, then a call; not a
+  replacement for 112), and an SMS when a reminder wasn't confirmed. Needs SMS (and for Hilfe, location) permission.
+- Android 13+: reading notifications for sideloaded apps may need App-Info → ⋮ → "Eingeschränkte Einstellungen
+  zulassen" first.
 - **A tap on a person** opens three big buttons: **WhatsApp** (opens the chat with that person), **Anrufen** (calls
   straight away once allowed) and **SMS**. A big "Zurück" button returns to the front page, and so does doing nothing
   for 90 seconds or coming back from a call.

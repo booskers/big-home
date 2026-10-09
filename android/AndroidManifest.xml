@@ -3,8 +3,8 @@
      shipped inside the app; this is one activity that is the phone's Home app once chosen. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cc.polychrome.bighome"
-    android:versionCode="9"
-    android:versionName="1.8.0">
+    android:versionCode="10"
+    android:versionName="1.9.0">
 
     <!-- Android 7 and newer: covers the older Samsung phones -->
     <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="35" />
@@ -24,7 +24,26 @@
     <!-- "Das Foto auch als Hintergrund des Handys setzen" -->
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
 
+    <!-- all optional, each asked for only when switched on in the settings:
+         badges (missed calls), Erweiterte Betreuung (SMS to the family, the place for SOS), reminders (notifications),
+         Lupe (camera), Bilderrahmen (photos), Großer Anruf-Bildschirm (the call app) -->
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
     <uses-feature android:name="android.hardware.camera.flash" android:required="false" />
 
     <!-- what the app may see on Android 11+: WhatsApp, the apps that can go on the home screen, the voice for reading aloud -->
@@ -74,6 +93,44 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- reminders and care: one alarm for the next thing due, set again after a restart -->
+        <receiver android:name=".Care$Alarm" android:exported="false" />
+        <receiver android:name=".Care$Boot" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- reads notifications (only once allowed in Android's settings): WhatsApp badges, reading messages aloud -->
+        <service android:name=".Notes" android:label="Großer Start" android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter><action android:name="android.service.notification.NotificationListenerService" /></intent-filter>
+        </service>
+
+        <!-- Großer Anruf-Bildschirm: what Android needs from a call app (only used once chosen as the call app) -->
+        <service android:name=".Phone$Service" android:exported="true" android:permission="android.permission.BIND_INCALL_SERVICE">
+            <meta-data android:name="android.telecom.IN_CALL_SERVICE_UI" android:value="true" />
+            <intent-filter><action android:name="android.telecom.InCallService" /></intent-filter>
+        </service>
+        <activity android:name=".Phone$Screen" android:exported="false" android:launchMode="singleInstance" android:excludeFromRecents="true"
+            android:taskAffinity="cc.polychrome.bighome.call" android:screenOrientation="portrait" android:theme="@style/CallTheme"
+            android:showWhenLocked="true" android:turnScreenOn="true" />
+        <activity android:name=".Phone$Dial" android:exported="true" android:label="Wählen" android:theme="@style/CallTheme"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.DIAL" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.DIAL" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="tel" />
             </intent-filter>
         </activity>
     </application>

@@ -3,6 +3,14 @@ package cc.polychrome.bighome;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.content.ContentUris;
+import android.provider.CallLog;
+import android.provider.MediaStore;
+import android.telecom.TelecomManager;
+import android.webkit.PermissionRequest;
+import android.webkit.WebChromeClient;
+import java.lang.ref.WeakReference;
+import java.util.Map;
 import android.app.WallpaperManager;
 import android.provider.AlarmClock;
 import java.util.ArrayList;
@@ -66,7 +74,11 @@ import org.json.JSONObject;
  */
 public class MainActivity extends Activity {
     static final String PAGE = "file:///android_asset/index.html";
-    static final int REQ_CONTACT = 1, REQ_PHOTO = 2, REQ_PERMS = 3, REQ_ROLE = 4, REQ_BG = 5;
+    static final int REQ_CONTACT = 1, REQ_PHOTO = 2, REQ_PERMS = 3, REQ_ROLE = 4, REQ_BG = 5, REQ_DIALER = 6;
+    static WeakReference<MainActivity> current = new WeakReference<>(null);
+
+    /** something changed in the background (a reminder, a message, a missed call): the page looks again */
+    static void poke() { MainActivity a = current.get(); if (a != null) a.js("window.onCare&&onCare()"); }
     static final String[] WHATSAPP = { "com.whatsapp", "com.whatsapp.w4b" };
 
     WebView web;
@@ -109,6 +121,19 @@ public class MainActivity extends Activity {
             @Override public void onPageFinished(WebView v, String url) { sendInsets(); }
         });
         web.addJavascriptInterface(new Bridge(), "Android");
+        s.setMediaPlaybackRequiresUserGesture(false);
+        // the magnifier ("Lupe") uses the camera through the page; allowed once the app may use the camera
+        web.setWebChromeClient(new WebChromeClient() {
+            @Override public void onPermissionRequest(PermissionRequest r) {
+                runOnUiThread(() -> {
+                    if (granted(Manifest.permission.CAMERA)) r.grant(new String[] { PermissionRequest.RESOURCE_VIDEO_CAPTURE });
+                    else r.deny();
+                });
+            }
+        });
+        current = new WeakReference<>(this);
+        Care.channels(this);
+        new Thread(() -> Care.schedule(this)).start();
         setContentView(web);
         edgeToEdge();
 
@@ -223,6 +248,7 @@ public class MainActivity extends Activity {
         };
         sendBattery(registerReceiver(batteryRx, new IntentFilter(Intent.ACTION_BATTERY_CHANGED)));
         js("window.onResumed&&onResumed()");
+        poke();
     }
 
     @Override
@@ -378,7 +404,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int req, int res, Intent data) {
         super.onActivityResult(req, res, data);
-        if (req == REQ_ROLE) { js("window.onResumed&&onResumed()"); return; }
+        if (req == REQ_ROLE || req == REQ_DIALER) { js("window.onResumed&&onResumed()"); return; }
         if (res != RESULT_OK || data == null || data.getData() == null) return;
         Uri u = data.getData();
         new Thread(() -> {
@@ -431,6 +457,7 @@ public class MainActivity extends Activity {
                 out.getFD().sync();
             } catch (Exception e) { return; }
             if (!tmp.renameTo(cfg)) { cfg.delete(); tmp.renameTo(cfg); }
+            Care.schedule(MainActivity.this);
         }
 
         @JavascriptInterface public String battery() {
@@ -584,6 +611,134 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void showTimers() {
             runOnUiThread(() -> { if (Build.VERSION.SDK_INT < 26 || !start(new Intent(AlarmClock.ACTION_SHOW_TIMERS))) start(new Intent(AlarmClock.ACTION_SHOW_ALARMS)); });
         }
+
+        // ---- permissions, one at a time, asked from the settings
+        String[] perms(String which) {
+            switch (which) {
+                case "calllog": return new String[] { Manifest.permission.READ_CALL_LOG };
+                case "sms": return new String[] { Manifest.permission.SEND_SMS };
+                case "location": return new String[] { Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION };
+                case "notify": return Build.VERSION.SDK_INT >= 33 ? new String[] { Manifest.permission.POST_NOTIFICATIONS } : new String[0];
+                case "camera": return new String[] { Manifest.permission.CAMERA };
+                case "photos":
+                    if (Build.VERSION.SDK_INT >= 34) return new String[] { Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED };
+                    if (Build.VERSION.SDK_INT >= 33) return new String[] { Manifest.permission.READ_MEDIA_IMAGES };
+                    return new String[] { Manifest.permission.READ_EXTERNAL_STORAGE };
+                default: return new String[0];
+            }
+        }
+        @JavascriptInterface public boolean has(String which) {
+            String[] p = perms(which);
+            if ("photos".equals(which) && Build.VERSION.SDK_INT >= 34) return granted(p[0]) || granted(p[1]);
+            for (String x : p) if (!granted(x)) return false;
+            return true;
+        }
+        @JavascriptInterface public void ask(String which) {
+            String[] p = perms(which);
+            runOnUiThread(() -> { if (p.length > 0) requestPermissions(p, REQ_PERMS); else js("window.onPerms&&onPerms()"); });
+        }
+        @JavascriptInterface public void appDetails() {
+            runOnUiThread(() -> start(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()))));
+        }
+
+        // ---- notifications: unread WhatsApp per person, reading messages aloud
+        @JavascriptInterface public boolean notesOn() { return Notes.enabled(MainActivity.this); }
+        @JavascriptInterface public void notesAccess() {
+            runOnUiThread(() -> { if (!start(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))) start(new Intent(Settings.ACTION_SETTINGS)); });
+        }
+
+        /** per person: missed calls since they were last opened here, and unread WhatsApp messages */
+        @JavascriptInterface public String badges(String json) {
+            JSONObject out = new JSONObject();
+            try {
+                JSONArray ppl = new JSONArray(json);
+                ArrayList<long[]> missed = new ArrayList<>();   // [date] per call, matched by digits below
+                ArrayList<String> missedNum = new ArrayList<>();
+                if (granted(Manifest.permission.READ_CALL_LOG)) {
+                    long since = System.currentTimeMillis() - 14L * 86400000L;
+                    try (Cursor c = getContentResolver().query(CallLog.Calls.CONTENT_URI, new String[] { CallLog.Calls.NUMBER, CallLog.Calls.DATE },
+                            CallLog.Calls.TYPE + "=? AND " + CallLog.Calls.DATE + ">?", new String[] { String.valueOf(CallLog.Calls.MISSED_TYPE), String.valueOf(since) }, null)) {
+                        while (c != null && c.moveToNext()) { missedNum.add(Phone.digits(c.getString(0))); missed.add(new long[] { c.getLong(1) }); }
+                    }
+                }
+                Map<String, Integer> wa = Notes.unread;
+                for (int i = 0; i < ppl.length(); i++) {
+                    JSONObject p = ppl.getJSONObject(i);
+                    String d = Phone.digits(p.optString("number"));
+                    long seen = p.optLong("seen", 0);
+                    int calls = 0;
+                    for (int k = 0; k < missedNum.size(); k++) if (!d.isEmpty() && d.equals(missedNum.get(k)) && missed.get(k)[0] > seen) calls++;
+                    Integer a = wa.get(Notes.norm(p.optString("name"))), b = p.optString("contact").isEmpty() ? null : wa.get(Notes.norm(p.optString("contact")));
+                    int w = Math.max(a == null ? 0 : a, b == null ? 0 : b);
+                    if (calls + w > 0) out.put(p.optString("id"), new JSONObject().put("calls", calls).put("wa", w));
+                }
+            } catch (Exception ignored) { }
+            return out.toString();
+        }
+
+        // ---- reminders and care
+        @JavascriptInterface public String careState() {
+            try { return new JSONObject().put("pending", Care.pending(MainActivity.this)).put("checkedIn", Care.checkedIn(MainActivity.this)).toString(); }
+            catch (Exception e) { return "{}"; }
+        }
+        @JavascriptInterface public void medTaken(String id) { Care.taken(MainActivity.this, id); }
+        @JavascriptInterface public boolean checkIn() { return Care.checkIn(MainActivity.this); }
+        @JavascriptInterface public void sos() { runOnUiThread(() -> Care.sos(MainActivity.this)); }
+        @JavascriptInterface public boolean exactAlarms() {
+            return Build.VERSION.SDK_INT < 31 || getSystemService(AlarmManager.class).canScheduleExactAlarms();
+        }
+        @JavascriptInterface public void allowExactAlarms() {
+            if (Build.VERSION.SDK_INT >= 31) runOnUiThread(() -> start(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + getPackageName()))));
+        }
+
+        // ---- photo frame: the newest pictures on the phone (or only those from WhatsApp)
+        @JavascriptInterface public void photos(boolean whatsappOnly) {
+            new Thread(() -> {
+                JSONArray out = new JSONArray();
+                String sel = whatsappOnly ? MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " LIKE ?" : null;
+                String[] args = whatsappOnly ? new String[] { "%WhatsApp%" } : null;
+                try (Cursor c = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[] { MediaStore.Images.Media._ID },
+                        sel, args, MediaStore.Images.Media.DATE_ADDED + " DESC")) {
+                    while (c != null && c.moveToNext() && out.length() < 40) out.put(String.valueOf(c.getLong(0)));
+                } catch (Exception ignored) { }
+                js("window.onPhotos&&onPhotos(" + JSONObject.quote(out.toString()) + ")");
+            }).start();
+        }
+        @JavascriptInterface public void photo(String id, int max) {
+            new Thread(() -> {
+                String data = "";
+                try {
+                    Bitmap b = decode(ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, Long.parseLong(id)), Math.max(200, Math.min(max, 1600)));
+                    if (b != null) {
+                        float k = Math.min(1f, (float) max / Math.max(b.getWidth(), b.getHeight()));
+                        if (k < 1f) b = Bitmap.createScaledBitmap(b, Math.round(b.getWidth() * k), Math.round(b.getHeight() * k), true);
+                        ByteArrayOutputStream o = new ByteArrayOutputStream();
+                        b.compress(Bitmap.CompressFormat.JPEG, 85, o);
+                        data = "data:image/jpeg;base64," + Base64.encodeToString(o.toByteArray(), Base64.NO_WRAP);
+                    }
+                } catch (Exception | OutOfMemoryError ignored) { }
+                js("window.onPhoto&&onPhoto(" + JSONObject.quote(id) + "," + JSONObject.quote(data) + ")");
+            }).start();
+        }
+
+        // ---- the big call screen: Großer Start as the phone's call app (and back)
+        @JavascriptInterface public boolean isDialer() {
+            TelecomManager tm = getSystemService(TelecomManager.class);
+            return tm != null && getPackageName().equals(tm.getDefaultDialerPackage());
+        }
+        @JavascriptInterface @SuppressWarnings("deprecation") public void bigCalls() {
+            runOnUiThread(() -> {
+                if (Build.VERSION.SDK_INT >= 29) {
+                    RoleManager rm = getSystemService(RoleManager.class);
+                    if (rm != null && rm.isRoleAvailable(RoleManager.ROLE_DIALER)) {
+                        try { startActivityForResult(rm.createRequestRoleIntent(RoleManager.ROLE_DIALER), REQ_DIALER); return; } catch (Exception ignored) { }
+                    }
+                }
+                Intent i = new Intent(TelecomManager.ACTION_CHANGE_DEFAULT_DIALER).putExtra(TelecomManager.EXTRA_CHANGE_DEFAULT_DIALER_PACKAGE_NAME, getPackageName());
+                try { startActivityForResult(i, REQ_DIALER); } catch (Exception e) { start(new Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS)); }
+            });
+        }
+        @JavascriptInterface public void defaultApps() { runOnUiThread(() -> { if (!start(new Intent(Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))) start(new Intent(Settings.ACTION_SETTINGS)); }); }
 
         @JavascriptInterface public boolean hasTorch() { return torchId != null; }
         @JavascriptInterface public boolean torch(boolean on) { return setTorch(on); }

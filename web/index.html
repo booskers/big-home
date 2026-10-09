@@ -71,7 +71,7 @@ button:active{transform:scale(.96);filter:brightness(1.08)}
 #hold span{background:rgba(255,255,255,.92);border-radius:50%;width:128px;height:128px;display:flex;align-items:center;justify-content:center;padding:8px}
 
 /* family: every tile a rounded square; a face fills it, otherwise initials on a rich colour, the name on a glass strip */
-#people{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--tmin),1fr));gap:16px}
+#people{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--tmin),1fr));gap:16px;margin-top:16px}
 #people.one{grid-template-columns:1fr}
 .tile{container-type:inline-size;aspect-ratio:1/1;border:0;padding:0;border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--depth);background:#2a2d38;color:#fff;display:block;text-align:center}
 .av{background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex:none;
@@ -97,6 +97,43 @@ button:active{transform:scale(.96);filter:brightness(1.08)}
   border-radius:var(--r-xl);min-height:112px;padding:12px 10px;background:var(--glass);color:#fff;font-size:min(calc(6vw / var(--ui)),26px);font-weight:700;line-height:1.1;text-align:center}
 .pill svg{width:42px;height:42px;flex:none}
 .pill.on{background:rgba(255,214,10,.92);color:#1c1c1e}
+/* badges, reminders card, care buttons, photo frame */
+.badge{position:absolute;top:6cqw;right:6cqw;z-index:3;min-width:15cqw;height:15cqw;padding:0 3cqw;border-radius:999px;background:#e5222f;color:#fff;
+  font-size:10cqw;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #fff}
+#pNew{display:flex;flex-direction:column;gap:8px;margin:-6px 0 14px}
+.pnew{background:#e5222f;color:#fff;border-radius:999px;padding:8px 16px;font-size:min(calc(5.4vw / var(--ui)),24px);font-weight:700;text-align:center}
+#meds,#care{display:flex;flex-direction:column;gap:14px;margin-top:14px}
+#meds.none,#care.none{display:none}
+#care{flex-direction:row}
+.medcard{position:relative;isolation:isolate;border-radius:var(--r-xl);background:rgba(255,214,10,.95);color:#1c1c1e;padding:16px;display:flex;flex-direction:column;gap:12px}
+.medtxt{display:flex;align-items:center;gap:14px;font-size:min(calc(7.5vw / var(--ui)),32px);font-weight:800;line-height:1.1}
+.medtxt svg{width:52px;height:52px;flex:none}
+.medtxt small{display:block;font-size:.6em;font-weight:600}
+.medok{min-height:88px;border:0;border-radius:var(--r-l);background:#107a3e;color:#fff;font-size:min(calc(8vw / var(--ui)),34px);font-weight:800}
+.pill.okbtn{background:rgba(16,122,62,.85)}
+.pill.done{background:var(--glass);opacity:.85}
+.pill.sosbtn{background:rgba(200,30,45,.9)}
+.pill.sosbtn small{display:block;font-size:.62em;font-weight:600}
+.sosring{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.7)}
+.pill.holding{transform:scale(.97)}
+#frame{margin-top:16px}
+#frame:empty{display:none}
+.framebtn{display:block;width:100%;aspect-ratio:4/3;border:0;border-radius:var(--r-xl);background:#222 center/cover no-repeat}
+.framenote{background:var(--glass);border-radius:var(--r-l);padding:16px;font-size:20px;text-align:center;margin:0}
+/* Lupe and photo viewer: full screen, black */
+#lupe,#pview{background:#000!important;zoom:1}
+#lupe video{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transform-origin:center}
+.lbar{position:absolute;left:12px;right:12px;bottom:calc(var(--ib) + 12px);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;z-index:2}
+.lbar button,#pview .pvbar button{min-height:76px;border:0;border-radius:22px;background:rgba(20,22,30,.82);color:#fff;font-size:24px;font-weight:700}
+.lbar button.on{background:rgba(255,214,10,.95);color:#1c1c1e}
+#lupeZ{position:absolute;top:calc(var(--it) + 12px);left:50%;transform:translateX(-50%);background:rgba(20,22,30,.82);border-radius:999px;padding:8px 18px;font-size:24px;font-weight:700;z-index:2}
+#pvImg{position:absolute;top:calc(var(--it) + 50px);left:0;right:0;bottom:calc(var(--ib) + 110px);background:center/contain no-repeat}
+#pvCount{position:absolute;top:calc(var(--it) + 10px);left:0;right:0;text-align:center;font-size:22px;font-weight:600}
+#pview .pvbar{position:absolute;left:12px;right:12px;bottom:calc(var(--ib) + 12px);display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.pick label.chk{background:#fff;margin-bottom:6px}
+.trow b{font-size:22px;min-width:96px;text-align:center}
+input[type=radio]{width:30px;height:30px;flex:none;accent-color:#1e9a52}
+
 /* helpers: alarm, kitchen timer, stopwatch */
 #widgets{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:12px;margin-top:16px}
 #widgets .pill{font-size:min(calc(5.2vw / var(--ui)),24px);padding:12px 6px}
@@ -284,6 +321,9 @@ input:focus{outline:3px solid rgba(10,91,216,.5);outline-offset:1px}
     <div id="bat" class="lg" role="status"><span class="batico"><i></i></span><span id="batTx"></span></div>
     <div id="hold"><span>Einrichtung …</span></div>
   </section>
+  <section id="meds" class="none" aria-label="Erinnerungen"></section>
+  <section id="care" class="none" aria-label="Mir geht’s gut und Hilfe"></section>
+  <section id="frame" aria-label="Bilderrahmen"></section>
   <div id="empty">Noch niemand eingerichtet.<br>Zum Einrichten die Uhrzeit <b>4&nbsp;Sekunden</b> lang gedrückt halten.</div>
   <section id="people" aria-label="Familie"></section>
   <section id="apps" aria-label="WhatsApp"></section>
@@ -295,8 +335,21 @@ input:focus{outline:3px solid rgba(10,91,216,.5);outline-offset:1px}
 <div id="person" class="view" role="dialog" aria-labelledby="pName">
   <div class="vbg"></div>
   <div id="pHead"><div class="av"></div><div id="pName"></div></div>
+  <div id="pNew"></div>
   <div id="acts"></div>
   <button class="back lg" id="pBack"><svg class="i" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Zurück</button>
+</div>
+
+<div id="lupe" class="view" role="dialog" aria-label="Lupe">
+  <video id="lupeV" playsinline muted></video>
+  <div id="lupeZ"></div>
+  <div class="lbar"><button id="lupeM" aria-label="Weniger vergrößern">−</button><button id="lupeP" aria-label="Mehr vergrößern">+</button><button id="lupeL">Licht</button>
+    <button id="lupeF">Anhalten</button><span></span><button id="lupeX">Zurück</button></div>
+</div>
+
+<div id="pview" class="view" role="dialog" aria-label="Fotos">
+  <div id="pvCount"></div><div id="pvImg"></div>
+  <div class="pvbar"><button id="pvPrev" aria-label="Vorheriges Foto">‹</button><button id="pvX">Zurück</button><button id="pvNext" aria-label="Nächstes Foto">›</button></div>
 </div>
 
 <div id="wview" class="view" role="dialog" aria-labelledby="wTitle">
@@ -525,7 +578,15 @@ function makeMock() {
     listApps() { setTimeout(() => onApps(JSON.stringify(['Kamera', 'Galerie', 'Großes Solitär', 'Bunte Steine', 'Wetter', 'Uhr', 'Rechner', 'Kalender', 'Einstellungen', 'Telefon', 'Nachrichten', 'Chrome', 'YouTube', 'Radio'].map((l, i) => ({ pkg: 'app' + i, label: l, icon: this.appIcon(i % 2 ? 'cam' : 'x') })))), 200); },
     setAlarm(h, m, l, d) { this._al = new Date(); this._al.setHours(h, m, 0, 0); if (this._al < new Date()) this._al = new Date(+this._al + 864e5); return true; },
     nextAlarm() { return this._al ? +this._al : 0; }, setTimer: () => true, showAlarms() { say('Wecker-App'); }, showTimers() { say('Timer-App'); },
-    hasTorch: () => true, torch(on) { setTimeout(() => onTorch(on), 50); return true; },
+    hasTorch: () => true,
+    has(w) { return !!(this.perm && this.perm[w]); }, ask(w) { this.perm = this.perm || {}; this.perm[w] = true; setTimeout(() => onPerms(), 100); },
+    appDetails() {}, notesOn: () => true, notesAccess() {}, exactAlarms: () => true, allowExactAlarms() {},
+    badges(j) { const o = {}; JSON.parse(j).forEach((p, i) => { if (i === 1) o[p.id] = { calls: 2, wa: 1 }; }); return JSON.stringify(o); },
+    careState() { const ms = (C.meds || []).filter(m => !(this._taken || {})[m.id]); return JSON.stringify({ pending: ms.map(m => ({ id: m.id, text: m.text, time: m.h + ':' + pad2(m.m) })), checkedIn: !!this._ci }); },
+    medTaken(id) { (this._taken = this._taken || {})[id] = true; }, checkIn() { this._ci = true; return true; }, sos() { say('SOS'); },
+    photos() { setTimeout(() => onPhotos(JSON.stringify(['1', '2', '3'])), 100); },
+    photo(id, size) { setTimeout(() => onPhoto(id, mockPicture(id === '2')), 80); },
+    isDialer: () => false, bigCalls() { say('Telefon-App wählen'); }, defaultApps() {}, torch(on) { setTimeout(() => onTorch(on), 50); return true; },
     pickContact() { setTimeout(() => onContactPicked(JSON.stringify({ name: 'Neuer Kontakt', number: '+49 30 1234567', photo: '' })), 200); },
     pickPhoto() { say('Foto wählen'); },
     isDefaultHome: () => false, openHomeSettings() { say('Startbildschirm wählen'); }, openDisplaySettings() { say('Anzeige'); },
@@ -541,7 +602,8 @@ function makeMock() {
 
 /* ---------- settings, kept on the phone ---------- */
 const DEF = { v: 1, people: [], apps: [], showWhatsApp: true, country: '49', speak: false, pin: '', names: false, bgPhone: true,
-  order: ['clock', 'people', 'whatsapp', 'tools', 'widgets', 'apps'], locked: false,
+  order: ['clock', 'meds', 'care', 'people', 'whatsapp', 'tools', 'widgets', 'frame', 'apps'], locked: false,
+  badges: false, readAloud: false, readFamilyOnly: true, meds: [], lupe: false, frame: false, frameWA: false, care: null,
   wAlarm: false, wTimer: false, wSw: false, sw: { acc: 0, start: 0 }, timerEnd: 0, timerLen: 0,
   drawer: true, allBtn: true, torch: true, hidden: [], ui: 1 };
 let C, firstRun = false;
@@ -564,7 +626,7 @@ window.onBattery = function (level, charging) {
   $('#batTx').textContent = level + ' %' + (charging ? (level >= 100 ? ' – voll' : ' – lädt') : low ? ' – Bitte aufladen' : '');
 };
 try { const b = JSON.parse(A.battery()); onBattery(b.level, b.charging); } catch (e) {}
-tick(); setInterval(() => { tick(); if (window.liveWidgets) liveWidgets(); }, 1000);
+tick(); setInterval(() => { tick(); if (window.liveWidgets) liveWidgets(); if (new Date().getSeconds() === 0 && window.refreshCare) { refreshCare(); updateBadges(); } }, 1000);
 
 /* ---------- pictures of people ---------- */
 const AVC = [['#3569b8', '#24498a'], ['#2a8460', '#1b6046'], ['#b8692e', '#8e4a1a'], ['#7a52ad', '#583986'], ['#b44558', '#8a2c3e'], ['#2a8191', '#1c5f6b']];
@@ -606,7 +668,7 @@ let homeSig = '';
 function renderHome(force) {
   // only when something on the front page changed: rebuilding it all is not free
   const sig = JSON.stringify([C.people.map(p => [p.id, p.name, (p.photo || '').length, (p.photo || '').slice(-24), p.wa, p.call, p.sms]), C.apps.map(a => a.pkg),
-    C.order, C.names, C.showWhatsApp, C.allBtn, C.torch, C.drawer, C.wAlarm, C.wTimer, C.wSw, torchOn, A.hasWhatsApp(), C.apps.map(a => A.appInstalled(a.pkg))]);
+    C.order, C.names, C.showWhatsApp, C.allBtn, C.torch, C.drawer, C.wAlarm, C.wTimer, C.wSw, C.badges, C.lupe, C.frame, C.frameWA, JSON.stringify(C.care), (C.meds || []).length, torchOn, A.hasWhatsApp(), C.apps.map(a => A.appInstalled(a.pkg))]);
   if (!force && sig === homeSig) return;
   homeSig = sig;
   placeBlocks();
@@ -614,7 +676,7 @@ function renderHome(force) {
   ppl.classList.toggle('one', C.people.length === 1);
     for (const p of C.people) {
     // with a photo the face is the tile; without one the letters and the name
-    const b = el('button', 'tile' + (p.photo ? ' face' : '')); b.setAttribute('aria-label', p.name);
+    const b = el('button', 'tile' + (p.photo ? ' face' : '')); b.setAttribute('aria-label', p.name); b.dataset.id = p.id;
     b.append(avatar(p));
     if (!p.photo || C.names) b.append(el('div', 'nm lg', p.name));
     b.onclick = () => openPerson(p);
@@ -642,6 +704,9 @@ function renderHome(force) {
   }
   renderTools();
   renderWidgets();
+  updateBadges();
+  refreshCare();
+  if (C.frame) loadPhotos(); else { $('#frame').textContent = ''; clearInterval(frameT); }
   LG.scan();
   $('#empty').style.display = C.people.length || C.apps.length ? 'none' : 'block';
 }
@@ -712,6 +777,8 @@ function openPerson(p) {
   if (p.sms !== false)
     add('sms', ICON.sms, 'SMS', 'Kurznachricht schreiben', () => { say('SMS an ' + p.name);
       launch(() => A.sms(p.number), 'SMS wird geöffnet …'); });
+  $('#pNew').innerHTML = C.badges ? badgeLines(p) : '';
+  if (C.badges && badgeData[p.id] && badgeData[p.id].calls) { p.seen = Date.now(); save(); setTimeout(updateBadges, 300); }
   $('#person').classList.add('open'); $('#person').scrollTop = 0;
   LG.scan($('#person'));
   say(p.name);
@@ -809,14 +876,16 @@ function itemHTML(i, n, avHTML, title, sub, editable, fixed) {
 }
 
 /* the front page's blocks, in the order chosen in the settings */
-const BLOCKS = { clock: 'Uhrzeit, Datum und Akku', people: 'Familie', whatsapp: 'WhatsApp', tools: 'Taschenlampe und „Alle Apps“', widgets: 'Wecker, Kurzzeitwecker, Stoppuhr', apps: 'Apps' };
+const BLOCKS = { clock: 'Uhrzeit, Datum und Akku', meds: 'Erinnerungen (nur wenn fällig)', care: 'Mir geht’s gut und Hilfe', people: 'Familie', frame: 'Bilderrahmen', whatsapp: 'WhatsApp', tools: 'Taschenlampe und „Alle Apps“', widgets: 'Wecker, Kurzzeitwecker, Stoppuhr', apps: 'Apps' };
 function fixOrder() {
   const o = (Array.isArray(C.order) ? C.order : []).filter(k => k in BLOCKS);
+  for (const k of DEF.order) if (!o.includes(k)) { const before = DEF.order.slice(0, DEF.order.indexOf(k)).reverse().find(x => o.includes(x)); o.splice(before ? o.indexOf(before) + 1 : 0, 0, k); }
   for (const k of Object.keys(BLOCKS)) if (!o.includes(k)) o.push(k);
+  if (!C.care) C.care = careDefaults();
   C.order = [...new Set(o)];
 }
 function placeBlocks() {
-  const home = $('#home'), el = { clock: $('#top'), people: $('#people'), whatsapp: $('#apps'), tools: $('#tools'), widgets: $('#widgets'), apps: $('#dock') };
+  const home = $('#home'), el = { clock: $('#top'), meds: $('#meds'), care: $('#care'), frame: $('#frame'), people: $('#people'), whatsapp: $('#apps'), tools: $('#tools'), widgets: $('#widgets'), apps: $('#dock') };
   for (const k of C.order) home.append(el[k]);
   el.clock.after($('#empty'));
 }
@@ -876,6 +945,7 @@ function renderSetup() {
     '</div></div><div class="row"><button class="btn pri" data-act="bg">Foto als Hintergrund wählen</button>' +
     (bgUrl ? '<button class="btn" data-act="nobg">Handy-Hintergrund verwenden</button>' : '') + '</div>' +
     '<label class="chk"><input type="checkbox" data-opt="bgPhone"' + (C.bgPhone !== false ? ' checked' : '') + '> Das Foto auch als Hintergrund des Handys setzen</label>';
+  h += moreHTML();
   h += '<h3>Telefon</h3><div class="row"><button class="btn" data-act="display">Schrift und Anzeige größer stellen</button></div>' +
     '<p class="note">Das macht auch WhatsApp und die anderen Apps besser lesbar.</p>';
 
@@ -893,7 +963,13 @@ function renderSetup() {
 
 $('#setup').addEventListener('change', e => {
   const o = e.target.dataset && e.target.dataset.opt;
-  if (o) { C[o] = e.target.checked; save(); renderHome(); if (o === 'locked') renderSetup(); }
+  if (o) {
+    C[o] = e.target.checked; save(); renderHome(); renderSetup();
+    if (o === 'badges' && C.badges && !A.has('calllog')) A.ask('calllog');
+    if (o === 'frame' && C.frame && !A.has('photos')) { pendingAfterPerm = () => { renderHome(true); }; A.ask('photos'); }
+    if (o === 'frameWA') loadPhotos();
+    if (o === 'lupe' && C.lupe && !A.has('camera')) A.ask('camera');
+  }
 });
 $('#setup').addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
@@ -931,16 +1007,18 @@ $('#setup').addEventListener('click', e => {
 
 let pendingPick = false;
 window.onPerms = function () {
+  if (pendingAfterPerm) { const f = pendingAfterPerm; pendingAfterPerm = null; setTimeout(f, 100); }
+  updateBadges(); if (C.frame) loadPhotos();
   findPhotos();
   if (pendingPick) { pendingPick = false; A.pickContact(); }
   if ($('#setup').classList.contains('open')) renderSetup();
 };
 window.onContactPicked = function (json) {
   if (!json) return;
-  try { const c = JSON.parse(json); editPerson(null, c); } catch (e) {}
+  try { const c = JSON.parse(json); c.contact = c.name; editPerson(null, c); } catch (e) {}
 };
 /** when the app comes back to the front: the Home setting may have changed */
-window.onResumed = function () { renderHome(); if ($('#setup').classList.contains('open') && !$('#dlg').classList.contains('open')) renderSetup(); };
+window.onResumed = function () { renderHome(); refreshCare(); updateBadges(); if (C.frame && !photoIds.length) loadPhotos(); if ($('#setup').classList.contains('open') && !$('#dlg').classList.contains('open')) renderSetup(); };
 
 /* ---------- updates: they come from GitHub and install themselves while the screen is off ---------- */
 function updateState() { try { return JSON.parse(A.updateInfo()); } catch (e) { return {}; } }
@@ -1109,6 +1187,12 @@ function renderTools() {
     b.onclick = () => { if (navigator.vibrate) navigator.vibrate(30); if (!A.torch(!torchOn)) toast('Die Taschenlampe ließ sich nicht einschalten.'); };
     t.append(b);
   }
+  if (C.lupe) {
+    const b = el('button', 'pill lg');
+    b.innerHTML = '<svg class="i" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg><span>Lupe</span>';
+    b.onclick = openLupe;
+    t.append(b);
+  }
   if (C.allBtn) {
     const b = el('button', 'pill lg');
     b.innerHTML = ICON_GRID + '<span>Alle Apps</span>';
@@ -1271,6 +1355,327 @@ new MutationObserver(() => {
   document.documentElement.classList.toggle('dim', open);
 }).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
 
+/* ======================================================================================================
+   More help for everyday use (all optional, switched on in the settings):
+   badges (missed calls, unread WhatsApp), reading messages aloud, reminders ("Erinnerungen"), Lupe, Bilderrahmen,
+   the big call screen, and behind "Erweiterte Betreuung" what contacts the family by itself: "Mir geht's gut",
+   the SOS ("Hilfe") and a note about a reminder that wasn't confirmed.
+   ====================================================================================================== */
+
+/* ---------- badges on the family tiles ---------- */
+let badgeData = {};
+function updateBadges() {
+  if (!C.badges) { badgeData = {}; document.querySelectorAll('.badge').forEach(b => b.remove()); return; }
+  try { badgeData = JSON.parse(A.badges(JSON.stringify(C.people.map(p => ({ id: p.id, number: p.number, name: p.name, contact: p.contact || '', seen: p.seen || 0 }))))); } catch (e) { badgeData = {}; }
+  document.querySelectorAll('#people .tile').forEach(t => {
+    const d = badgeData[t.dataset.id], n = d ? d.calls + d.wa : 0;
+    let b = t.querySelector('.badge');
+    if (!n) { if (b) b.remove(); return; }
+    if (!b) { b = el('span', 'badge'); t.append(b); }
+    b.textContent = n > 9 ? '9+' : n;
+    b.setAttribute('aria-label', (d.calls ? d.calls + ' verpasste Anrufe ' : '') + (d.wa ? d.wa + ' neue Nachrichten' : ''));
+  });
+}
+function badgeLines(p) {
+  const d = badgeData[p.id]; if (!d) return '';
+  return (d.calls ? '<div class="pnew">' + d.calls + (d.calls === 1 ? ' verpasster Anruf' : ' verpasste Anrufe') + '</div>' : '') +
+    (d.wa ? '<div class="pnew">' + d.wa + (d.wa === 1 ? ' neue WhatsApp-Nachricht' : ' neue WhatsApp-Nachrichten') + '</div>' : '');
+}
+
+/* ---------- reminders card and the care buttons on the front page ---------- */
+let careSt = { pending: [], checkedIn: false };
+function readCare() { try { careSt = JSON.parse(A.careState()); } catch (e) { careSt = { pending: [], checkedIn: false }; } }
+const ICON_PILL = '<svg class="i" viewBox="0 0 24 24"><rect x="2.5" y="8" width="19" height="8" rx="4" transform="rotate(-35 12 12)"/><path d="M9.2 7.9l5.6 8.2"/></svg>';
+const ICON_OK = '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.6 2.6L16 9.5"/></svg>';
+const ICON_SOS = '<svg class="i" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5M12 17.3v.2"/></svg>';
+function renderMeds() {
+  const box = $('#meds'); box.textContent = '';
+  for (const m of careSt.pending || []) {
+    const c = el('div', 'medcard lg');
+    c.innerHTML = '<div class="medtxt">' + ICON_PILL + '<span>' + esc(m.text) + '<small>' + esc(m.time) + ' Uhr</small></span></div>';
+    const b = el('button', 'medok', 'Erledigt');
+    b.onclick = () => { if (navigator.vibrate) navigator.vibrate(40); A.medTaken(m.id); say('Danke.'); toast('Danke! ' + m.text + ' ist erledigt.'); refreshCare(); };
+    c.append(b); box.append(c);
+  }
+  box.classList.toggle('none', !box.children.length);
+}
+function careOn() { return C.care && C.care.on; }
+function renderCareBtns() {
+  const box = $('#care'); box.textContent = '';
+  if (careOn() && C.care.checkin.on) {
+    const b = el('button', 'pill lg ' + (careSt.checkedIn ? 'done' : 'okbtn'));
+    b.innerHTML = ICON_OK + '<span>' + (careSt.checkedIn ? 'Heute gemeldet' : 'Mir geht’s gut') + '</span>';
+    b.onclick = () => {
+      if (careSt.checkedIn) return toast('Für heute ist schon gemeldet. Danke!');
+      if (navigator.vibrate) navigator.vibrate(40);
+      const sent = A.checkIn(); say('Danke. Die Familie weiß Bescheid.');
+      toast(sent ? 'Danke! Die Familie weiß Bescheid.' : 'Gemerkt. Die Nachricht ließ sich nicht senden.'); refreshCare();
+    };
+    box.append(b);
+  }
+  if (careOn() && C.care.sos.on) {
+    const b = el('button', 'pill lg sosbtn'); b.id = 'sosBtn';
+    b.innerHTML = ICON_SOS + '<span>Hilfe<small>3 Sekunden halten</small></span><i class="sosring"></i>';
+    holdFor(b, 3000, startSos);
+    box.append(b);
+  }
+  box.classList.toggle('none', !box.children.length);
+}
+/** a button that only acts when held for `ms` (a ring fills up meanwhile) */
+function holdFor(b, ms, fn) {
+  let t0 = 0, iv = 0;
+  const ring = () => b.querySelector('.sosring');
+  const stop = () => { clearInterval(iv); iv = 0; t0 = 0; ring().style.background = ''; b.classList.remove('holding'); };
+  b.addEventListener('pointerdown', () => {
+    t0 = Date.now(); b.classList.add('holding');
+    iv = setInterval(() => {
+      const f = Math.min(1, (Date.now() - t0) / ms);
+      ring().style.background = 'conic-gradient(#fff ' + (f * 360) + 'deg, transparent 0)';
+      if (f >= 1) { stop(); if (navigator.vibrate) navigator.vibrate([200, 100, 200]); fn(); }
+    }, 40);
+  });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(n => b.addEventListener(n, () => { if (iv) { stop(); toast('Für Hilfe den Knopf 3 Sekunden gedrückt halten.'); } }));
+  b.addEventListener('click', e => e.preventDefault());
+}
+function startSos() {
+  A.sos();
+  const who = C.people.find(p => p.id === C.care.sos.call);
+  say('Hilfe wird gerufen.');
+  toast('Die Familie wird benachrichtigt' + (who ? '. ' + who.name + ' wird angerufen …' : '.'));
+  if (who) setTimeout(() => A.call(who.number), 1500);
+}
+function refreshCare() { readCare(); renderMeds(); renderCareBtns(); LG.scan(); }
+window.onCare = function () { refreshCare(); updateBadges(); };
+
+/* ---------- Lupe: the camera as a big magnifying glass ---------- */
+let lupeStream = null, lupeZoom = 1, lupeLight = false;
+async function openLupe() {
+  if (!A.has('camera')) { pendingAfterPerm = openLupe; A.ask('camera'); return; }
+  $('#lupe').classList.add('open');
+  try {
+    lupeStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
+    const v = $('#lupeV'); v.srcObject = lupeStream; v.play();
+    lupeZoom = 2; lupeLight = false; applyLupe();
+  } catch (e) { toast('Die Kamera ließ sich nicht öffnen.'); closeLupe(); }
+}
+function lupeTrack() { return lupeStream && lupeStream.getVideoTracks()[0]; }
+function applyLupe() {
+  const t = lupeTrack(), caps = t && t.getCapabilities ? t.getCapabilities() : {};
+  const v = $('#lupeV');
+  if (caps.zoom) {
+    const z = Math.max(caps.zoom.min, Math.min(caps.zoom.max, lupeZoom));
+    t.applyConstraints({ advanced: [{ zoom: z }] }).catch(() => {});
+    v.style.transform = '';
+  } else v.style.transform = 'scale(' + lupeZoom + ')';
+  if (caps.torch) t.applyConstraints({ advanced: [{ torch: lupeLight }] }).catch(() => {});
+  $('#lupeZ').textContent = lupeZoom.toFixed(1).replace('.', ',') + '×';
+  $('#lupeL').classList.toggle('on', lupeLight);
+  $('#lupeF').textContent = v.paused ? 'Weiter' : 'Anhalten';
+}
+function closeLupe() {
+  $('#lupe').classList.remove('open');
+  if (lupeStream) lupeStream.getTracks().forEach(t => t.stop());
+  lupeStream = null;
+}
+
+/* ---------- Bilderrahmen: the newest photos, large ---------- */
+let photoIds = [], photoIdx = 0, photoCache = new Map(), frameT = 0, viewIdx = -1;
+function loadPhotos() {
+  if (!C.frame) return;
+  if (!A.has('photos')) { $('#frame').innerHTML = '<p class="framenote">Für den Bilderrahmen in der Einrichtung „Fotos erlauben“.</p>'; return; }
+  A.photos(!!C.frameWA);
+}
+window.onPhotos = function (json) {
+  try { photoIds = JSON.parse(json); } catch (e) { photoIds = []; }
+  photoIdx = 0; showFrame();
+  clearInterval(frameT); frameT = setInterval(() => { if (photoIds.length > 1 && !document.querySelector('.view.open')) { photoIdx = (photoIdx + 1) % Math.min(photoIds.length, 12); showFrame(); } }, 9000);
+};
+function getPhoto(id, size) {
+  const k = id + '@' + size;
+  if (photoCache.has(k)) return Promise.resolve(photoCache.get(k));
+  return new Promise(res => { (photoWait[k] = photoWait[k] || []).push(res); if (photoWait[k].length === 1) A.photo(id, size); });
+}
+const photoWait = {};
+window.onPhoto = function (id, data) {
+  for (const k of Object.keys(photoWait)) if (k.startsWith(id + '@')) {
+    const url = data ? blobUrl(data) : '';
+    photoCache.set(k, url); photoWait[k].forEach(f => f(url)); delete photoWait[k];
+  }
+};
+function showFrame() {
+  const f = $('#frame');
+  if (!photoIds.length) { f.innerHTML = '<p class="framenote">Noch keine Fotos auf dem Handy.</p>'; return; }
+  const id = photoIds[photoIdx];
+  getPhoto(id, 900).then(url => {
+    if (photoIds[photoIdx] !== id) return;
+    f.innerHTML = '';
+    const b = el('button', 'framebtn'); b.setAttribute('aria-label', 'Fotos ansehen');
+    b.style.backgroundImage = 'url("' + url + '")';
+    b.onclick = () => openViewer(photoIdx);
+    f.append(b);
+  });
+}
+function openViewer(i) { viewIdx = i; $('#pview').classList.add('open'); showViewer(); }
+function showViewer() {
+  const id = photoIds[viewIdx];
+  $('#pvCount').textContent = (viewIdx + 1) + ' von ' + photoIds.length;
+  getPhoto(id, 1600).then(url => { if (photoIds[viewIdx] === id) $('#pvImg').style.backgroundImage = 'url("' + url + '")'; });
+}
+function stepViewer(d) { if (!photoIds.length) return; viewIdx = (viewIdx + d + photoIds.length) % photoIds.length; showViewer(); }
+function closeViewer() { $('#pview').classList.remove('open'); viewIdx = -1; }
+
+/* ---------- settings for all of the above ---------- */
+let pendingAfterPerm = null;
+function permRow(which, label, okText) {
+  return A.has(which) ? '<p class="ok">✓ ' + okText + '</p>'
+    : '<div class="row"><button class="btn" data-ask="' + which + '">' + label + '</button></div>';
+}
+function peoplePick(path, ids, single) {
+  if (!C.people.length) return '<p class="note">Zuerst unter „Familie“ Personen hinzufügen.</p>';
+  return '<div class="pick">' + C.people.map(p => '<label class="chk"><input type="' + (single ? 'radio' : 'checkbox') + '" name="' + path + '" data-pick="' + path + '" value="' + esc(p.id) + '"' +
+    ((single ? ids === p.id : (ids || []).includes(p.id)) ? ' checked' : '') + '> ' + esc(p.name) + ' <span class="note">' + esc(p.number) + '</span></label>').join('') + '</div>';
+}
+function timeRow(path, h, m) {
+  return '<div class="row trow" data-time="' + path + '"><button class="btn sq" data-t="h-">−</button><b>' + h + ':' + pad2(m) + ' Uhr</b><button class="btn sq" data-t="h+">+</button>' +
+    '<span class="note">Stunde</span><button class="btn sq" data-t="m-">−</button><button class="btn sq" data-t="m+">+</button><span class="note">10 Min.</span></div>';
+}
+function moreHTML() {
+  let h = '';
+  // badges and reading aloud
+  h += '<h3>Nachrichten und Anrufe</h3>';
+  h += '<label class="chk"><input type="checkbox" data-opt="badges"' + (C.badges ? ' checked' : '') + '> Rote Zahl auf den Kacheln bei verpassten Anrufen und neuen WhatsApp-Nachrichten</label>';
+  h += '<label class="chk"><input type="checkbox" data-opt="readAloud"' + (C.readAloud ? ' checked' : '') + '> Neue Nachrichten vorlesen (WhatsApp und SMS)</label>';
+  if (C.readAloud) h += '<label class="chk"><input type="checkbox" data-opt="readFamilyOnly"' + (C.readFamilyOnly !== false ? ' checked' : '') + '> Nur Nachrichten von der Familie vorlesen</label>';
+  if (C.badges) h += permRow('calllog', 'Verpasste Anrufe sehen erlauben', 'Verpasste Anrufe werden gezählt.');
+  if (C.badges || C.readAloud) h += A.notesOn() ? '<p class="ok">✓ Benachrichtigungen werden gelesen (nur auf dem Handy, nichts wird verschickt).</p>'
+    : '<div class="warnbox"><p style="margin-top:0">Dafür muss Großer Start die Benachrichtigungen lesen dürfen. Auf der nächsten Seite „Großer Start“ einschalten.</p>' +
+      '<div class="row"><button class="btn pri" data-act="notes">Benachrichtigungen lesen erlauben</button></div>' +
+      '<p class="note">Ist der Schalter grau? Dann unter <a href="#" data-act="appinfo">App-Info</a> oben rechts ⋮ → „Eingeschränkte Einstellungen zulassen“ wählen und noch einmal versuchen.</p></div>';
+  // reminders
+  h += '<h3>Erinnerungen</h3><p class="note" style="margin:0 6px 8px">Zur eingestellten Zeit klingelt das Handy, und auf dem Startbildschirm erscheint eine große Karte mit „Erledigt“.</p><div data-list="meds">';
+  (C.meds || []).forEach((m, i) => {
+    h += '<div class="item"><div class="tx"><b>' + esc(m.text) + '</b></div><div class="row" style="width:100%;justify-content:flex-start">' +
+      timeRow('meds.' + i, m.h, m.m) + '<button class="btn sq" data-act="delmed" data-i="' + i + '" aria-label="Entfernen">✕</button></div></div>';
+  });
+  h += '</div><div class="row">' + ['Tabletten nehmen', 'Blutdruck messen', 'Trinken', 'Augentropfen'].map(t => '<button class="btn" data-addmed="' + t + '">+ ' + t + '</button>').join('') +
+    '<button class="btn" data-addmed="">+ Eigener Text …</button></div>';
+  if ((C.meds || []).length) {
+    h += permRow('notify', 'Benachrichtigungen erlauben', 'Erinnerungen dürfen klingeln.');
+    if (!A.exactAlarms()) h += '<div class="row"><button class="btn" data-act="exact">Pünktliche Erinnerungen erlauben</button></div><p class="note" style="margin:0 6px">Sonst kann eine Erinnerung ein paar Minuten später kommen.</p>';
+  }
+  // Lupe and photo frame
+  h += '<h3>Lupe und Bilderrahmen</h3>';
+  h += '<label class="chk"><input type="checkbox" data-opt="lupe"' + (C.lupe ? ' checked' : '') + '> Knopf „Lupe“: die Kamera als große Lupe, mit Licht</label>';
+  if (C.lupe) h += permRow('camera', 'Kamera erlauben', 'Die Lupe darf die Kamera benutzen.');
+  h += '<label class="chk"><input type="checkbox" data-opt="frame"' + (C.frame ? ' checked' : '') + '> Bilderrahmen: die neuesten Fotos groß auf dem Startbildschirm</label>';
+  if (C.frame) h += '<label class="chk"><input type="checkbox" data-opt="frameWA"' + (C.frameWA ? ' checked' : '') + '> Nur Fotos aus WhatsApp</label>' + permRow('photos', 'Fotos erlauben', 'Der Bilderrahmen darf die Fotos zeigen.');
+  // the big call screen
+  const dialer = A.isDialer();
+  h += '<h3>Anrufe</h3>';
+  h += dialer ? '<p class="ok">✓ Großer Anruf-Bildschirm ist an: Anrufe zeigen Foto und Namen mit riesigem „Annehmen“ und „Auflegen“.</p>' +
+      '<div class="row"><button class="btn" data-act="phoneback">Wieder die Telefon-App des Handys verwenden</button></div><p class="note" style="margin:0 6px">Dort unter „Telefon-App“ die bisherige App wählen.</p>'
+    : '<p class="note" style="margin:0 6px 8px">Großer Start wird dafür die Telefon-App des Handys. Das Klingeln kommt weiter vom Handy; nur der Bildschirm beim Anruf wird groß und einfach. Jederzeit hier wieder umstellbar.</p>' +
+      '<div class="row"><button class="btn pri" data-act="bigcalls">Großen Anruf-Bildschirm einschalten</button></div>';
+  // advanced care
+  h += '<h3>Erweiterte Betreuung</h3>';
+  if (!careOn()) {
+    h += '<p class="note" style="margin:0 6px 8px">„Mir geht’s gut“ jeden Tag, ein Hilfe-Knopf, und eine Nachricht an die Familie, wenn eine Erinnerung nicht bestätigt wurde. ' +
+      'Diese Funktionen können von selbst SMS an Familienmitglieder senden oder sie anrufen.</p><div class="row"><button class="btn" data-act="careon">Erweiterte Betreuung einrichten …</button></div>';
+  } else {
+    const c = C.care;
+    h += '<div class="warnbox"><p style="margin:0"><b>Achtung:</b> Mit diesen Einstellungen kann das Handy von selbst SMS an die gewählten Personen senden oder sie anrufen. Bitte vorher mit ihnen absprechen.</p></div>';
+    h += '<div class="field"><label for="careName">Name in den Nachrichten (z. B. „Oma Ruth“)</label><input type="text" id="careName" value="' + esc(c.name || '') + '"></div>';
+    h += permRow('sms', 'SMS senden erlauben', 'SMS dürfen gesendet werden.');
+    h += '<h3 style="margin-top:16px">Mir geht’s gut</h3><label class="chk"><input type="checkbox" data-copt="checkin.on"' + (c.checkin.on ? ' checked' : '') + '> Knopf „Mir geht’s gut“ auf dem Startbildschirm</label>';
+    if (c.checkin.on) {
+      h += '<label class="chk"><input type="checkbox" data-copt="checkin.send"' + (c.checkin.send !== false ? ' checked' : '') + '> Beim Drücken eine SMS „Mir geht es gut“ senden</label>';
+      h += '<p class="note" style="margin:8px 6px 0">Wurde er bis zu dieser Zeit nicht gedrückt, bekommen die Gewählten eine SMS:</p>' + timeRow('care.checkin', c.checkin.h, c.checkin.m);
+      h += '<p class="note" style="margin:8px 6px 4px">An wen:</p>' + peoplePick('checkin.to', c.checkin.to);
+    }
+    h += '<h3 style="margin-top:16px">Hilfe-Knopf</h3><label class="chk"><input type="checkbox" data-copt="sos.on"' + (c.sos.on ? ' checked' : '') + '> Knopf „Hilfe“ (3 Sekunden halten): SMS mit dem Standort an die Gewählten und ein Anruf</label>';
+    if (c.sos.on) {
+      h += '<p class="note" style="margin:8px 6px 4px">SMS mit Standort an:</p>' + peoplePick('sos.to', c.sos.to);
+      h += '<p class="note" style="margin:8px 6px 4px">Danach anrufen:</p>' + peoplePick('sos.call', c.sos.call, true);
+      h += permRow('location', 'Standort erlauben', 'Der Standort darf beim Hilfe-Knopf gesendet werden.');
+      h += '<p class="note" style="margin:4px 6px">Kein Ersatz für den Notruf 112.</p>';
+    }
+    h += '<h3 style="margin-top:16px">Erinnerung nicht bestätigt</h3><label class="chk"><input type="checkbox" data-copt="medNotify.on"' + (c.medNotify.on ? ' checked' : '') + '> SMS an die Gewählten, wenn eine Erinnerung nicht mit „Erledigt“ bestätigt wurde</label>';
+    if (c.medNotify.on) {
+      h += '<div class="row trow"><span>Nach</span><button class="btn sq" data-after="-15">−</button><b>' + c.medNotify.after + ' Minuten</b><button class="btn sq" data-after="15">+</button></div>';
+      h += peoplePick('medNotify.to', c.medNotify.to);
+    }
+    h += '<div class="row" style="margin-top:14px"><button class="btn danger" data-act="careoff">Erweiterte Betreuung ausschalten</button></div>';
+  }
+  return h;
+}
+
+/* the settings' clicks and changes for these parts */
+$('#setup').addEventListener('click', e => {
+  const t = e.target.closest('[data-ask],[data-addmed],[data-time] [data-t],[data-after],[data-act]');
+  if (!t) return;
+  if (t.dataset.ask) { A.ask(t.dataset.ask); return; }
+  if (t.dataset.addmed !== undefined) {
+    const add = text => { if (!text) return; C.meds = C.meds || []; C.meds.push({ id: 'm' + Date.now(), h: 8, m: 0, text }); save(); renderSetup(); if (!A.has('notify')) A.ask('notify'); };
+    if (t.dataset.addmed) add(t.dataset.addmed);
+    else {
+      openDlg('<h2>Eigene Erinnerung</h2><div class="field"><label for="medTxt">Text</label><input type="text" id="medTxt"></div><div class="row" style="justify-content:flex-end"><button class="btn" id="mtNo">Abbrechen</button><button class="btn pri" id="mtOk">Hinzufügen</button></div>');
+      $('#mtNo').onclick = closeDlg; $('#mtOk').onclick = () => { const v = $('#medTxt').value.trim(); closeDlg(); add(v); };
+    }
+    return;
+  }
+  if (t.dataset.t && t.closest('[data-time]')) {
+    const path = t.closest('[data-time]').dataset.time;
+    const obj = path.startsWith('meds.') ? C.meds[+path.split('.')[1]] : C.care.checkin;
+    const k = t.dataset.t;
+    if (k === 'h+') obj.h = (obj.h + 1) % 24; else if (k === 'h-') obj.h = (obj.h + 23) % 24;
+    else if (k === 'm+') obj.m = (obj.m + 10) % 60; else obj.m = (obj.m + 50) % 60;
+    save(); renderSetup(); return;
+  }
+  if (t.dataset.after) { C.care.medNotify.after = Math.max(15, Math.min(240, C.care.medNotify.after + +t.dataset.after)); save(); renderSetup(); return; }
+  switch (t.dataset.act) {
+    case 'notes': A.notesAccess(); break;
+    case 'appinfo': e.preventDefault(); A.appDetails(); break;
+    case 'exact': A.allowExactAlarms(); break;
+    case 'delmed': C.meds.splice(+t.dataset.i, 1); save(); renderSetup(); refreshCare(); break;
+    case 'bigcalls': confirmDlg('Großer Start wird dann die Telefon-App des Handys: eingehende Anrufe zeigen einen großen, einfachen Bildschirm. Zurück geht es jederzeit unter „Anrufe“.', 'Einschalten', () => A.bigCalls()); break;
+    case 'phoneback': A.defaultApps(); break;
+    case 'careon':
+      confirmDlg('Achtung: Wenn Sie die erweiterte Betreuung einrichten, kann dieses Handy von selbst SMS an Familienmitglieder senden oder sie anrufen, zum Beispiel beim Hilfe-Knopf oder wenn „Mir geht’s gut“ nicht gedrückt wurde. ' +
+        'Dabei können SMS-Kosten entstehen. Bitte sprechen Sie das vorher mit den Familienmitgliedern ab, die Sie auswählen.', 'Verstanden, einrichten',
+        () => { C.care = Object.assign(careDefaults(), C.care || {}, { on: true }); save(); renderSetup(); refreshCare(); });
+      break;
+    case 'careoff': C.care.on = false; save(); renderSetup(); refreshCare(); break;
+  }
+});
+$('#setup').addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.copt) {
+    const [a, b] = t.dataset.copt.split('.'); C.care[a][b] = t.checked;
+    if (a === 'sos' && t.checked && !A.has('location')) A.ask('location');
+    if (!A.has('sms')) A.ask('sms');
+    save(); renderSetup(); refreshCare(); return;
+  }
+  if (t.dataset.pick) {
+    const [a, b] = t.dataset.pick.split('.');
+    if (t.type === 'radio') C.care[a][b] = t.value;
+    else { const s = new Set(C.care[a][b] || []); t.checked ? s.add(t.value) : s.delete(t.value); C.care[a][b] = [...s]; }
+    save(); return;
+  }
+  if (t.id === 'careName') { C.care.name = t.value.trim(); save(); }
+});
+function careDefaults() {
+  return { on: false, name: '', checkin: { on: false, send: true, h: 12, m: 0, to: [] }, sos: { on: false, to: [], call: '' }, medNotify: { on: false, after: 60, to: [] } };
+}
+
+$('#lupeP').onclick = () => { lupeZoom = Math.min(8, lupeZoom + 0.5); applyLupe(); };
+$('#lupeM').onclick = () => { lupeZoom = Math.max(1, lupeZoom - 0.5); applyLupe(); };
+$('#lupeL').onclick = () => { lupeLight = !lupeLight; applyLupe(); };
+$('#lupeF').onclick = () => { const v = $('#lupeV'); v.paused ? v.play() : v.pause(); applyLupe(); };
+$('#lupeX').onclick = closeLupe;
+$('#pvPrev').onclick = () => stepViewer(-1);
+$('#pvNext').onclick = () => stepViewer(1);
+$('#pvX').onclick = closeViewer;
+
 /* ---------- messages ---------- */
 let toastT = 0;
 function toast(t) {
@@ -1288,11 +1693,13 @@ window.appBack = function () {
   else if (curPerson) closePerson();
   else if ($('#drawer').classList.contains('open')) closeDrawer();
   else if ($('#wview').classList.contains('open')) closeWidget();
+  else if ($('#lupe').classList.contains('open')) closeLupe();
+  else if ($('#pview').classList.contains('open')) closeViewer();
   return true;
 };
 /** Home (and leaving the screen): back to the front page; `all` closes the settings too */
 window.goHome = function (all) {
-  closePerson(); holdStop(); closeDrawer(); closeWidget();
+  closePerson(); holdStop(); closeDrawer(); closeWidget(); closeLupe(); closeViewer();
   if ($('#dlg .menu')) closeDlg();
   if (all) { closePin(); if ($('#setup').classList.contains('open')) closeSetup(); }
   window.scrollTo(0, 0);

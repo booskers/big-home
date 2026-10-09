@@ -8,5 +8,11 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
+    <!-- the call screen and the keypad: plain dark blue, no wallpaper -->
+    <style name="CallTheme" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/night</item>
+        <item name="android:statusBarColor">@color/night</item>
+        <item name="android:navigationBarColor">@color/night</item>
+    </style>
     <color name="night">#FF0D1B2A</color>
 </resources>

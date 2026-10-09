@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.9.0 (2026-10-09)
+
+All new parts are optional and off until switched on in the settings.
+
+- Badges: a red number on a family tile for missed calls and unread WhatsApp messages; the person screen says what's new.
+- Erinnerungen: reminders such as "Tabletten nehmen" ring at their time and show a big card with "Erledigt".
+- Großer Anruf-Bildschirm: Großer Start as the phone's call app, with a huge Annehmen / Ablehnen / Auflegen screen,
+  speaker, mute and a number pad, plus a big keypad for dialling. Switched back any time.
+- Lupe (the camera as a magnifier with light and freeze), Bilderrahmen (the newest photos, large), and reading new
+  messages aloud (WhatsApp and SMS, from the family only if wanted).
+- Erweiterte Betreuung, behind a clear warning because the phone may then contact family members by itself: a daily
+  "Mir geht's gut" (with an SMS if it wasn't pressed by a set time), a "Hilfe" button (hold 3 s: SMS with the
+  location, then a call), and an SMS when a reminder wasn't confirmed.
+
 ## 1.8.0 (2026-10-09)
 
 - Helfer: Wecker (alarm), Kurzzeitwecker (kitchen timer) and Stoppuhr (stopwatch) as big widgets, switched on in the

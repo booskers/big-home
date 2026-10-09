@@ -22,6 +22,7 @@
 @font-face{font-family:'Inter';font-style:normal;font-weight:400 800;font-display:block;src:url(fonts/inter-latin-ext.woff2) format('woff2');
   unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
 *{box-sizing:border-box}
+html{touch-action:pan-y}
 html,body{margin:0;min-height:100%;background:transparent;color:#fff;
   font-family:Inter,"SF Pro Display",-apple-system,system-ui,Roboto,sans-serif;font-optical-sizing:auto;
   font-feature-settings:'cv11','ss03';   /* single-storey a and rounder quotes, nearer to SF */
@@ -84,6 +85,28 @@ button:active{transform:scale(.96);filter:brightness(1.08)}
 .app.wa{display:flex;align-items:center;justify-content:center;gap:16px;border:0;border-radius:999px;min-height:112px;padding:12px 28px;
   background:rgba(16,122,62,.8);color:#fff;font-size:min(9vw,40px);font-weight:700;box-shadow:var(--depth)}
 .app.wa svg{width:64px;height:64px;flex:none}
+/* flashlight and "Alle Apps": two glass pills side by side */
+#tools{display:flex;gap:16px;margin-top:16px}
+#tools.none{display:none}
+.pill{position:relative;isolation:isolate;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:0;
+  border-radius:var(--r-xl);min-height:112px;padding:12px 10px;background:var(--glass);color:#fff;font-size:min(6vw,26px);font-weight:700;line-height:1.1;text-align:center}
+.pill svg{width:42px;height:42px;flex:none}
+.pill.on{background:rgba(255,214,10,.92);color:#1c1c1e}
+/* all apps: a page that slides in from the right */
+#drawer{padding:calc(var(--it) + 12px) calc(var(--ir) + 14px) calc(var(--ib) + 14px) calc(var(--il) + 14px);transition:transform .32s var(--ease)}
+#drawer.open{animation:slidein .32s var(--ease)}
+@keyframes slidein{from{transform:translateX(100%)}to{transform:none}}
+#drawer h2{font-size:min(9vw,40px);margin:4px 6px 14px;font-weight:700}
+#dGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 10px;flex:1;align-content:start}
+@media (min-width:600px){ #dGrid{grid-template-columns:repeat(5,minmax(0,1fr))} }
+.dapp{background:none;border:0;padding:4px;display:flex;flex-direction:column;align-items:center;gap:8px;color:#fff;touch-action:pan-y;
+  font-size:18px;font-weight:600;line-height:1.15;text-align:center;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.dapp img,.dapp .noimg{width:min(22vw,92px);height:min(22vw,92px)}
+.dapp .noimg{border-radius:28%;background:#fff;color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:700;text-shadow:none}
+.dapp span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;-webkit-hyphens:auto;hyphens:auto;overflow-wrap:break-word;max-width:100%}
+#drawer .back{margin-top:16px}
+.hidelist label.chk{background:#fff;margin-bottom:6px}
+.hidelist img{width:44px;height:44px}
 /* other apps: really big icons on a glass shelf; holding one shows its name, Öffnen and Deinstallieren */
 #dock{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;padding:14px;border-radius:calc(var(--r-xl) + 8px);
   background:var(--glass-light);box-shadow:var(--depth)}
@@ -132,6 +155,7 @@ html.hasbg .vbg{display:block}
 .back{min-height:80px;border:0;border-radius:999px;background:var(--glass-light);color:#fff;font-size:min(8vw,34px);font-weight:700;
   display:flex;align-items:center;justify-content:center;gap:12px;flex:none;box-shadow:var(--depth)}
 .back svg{width:40px;height:40px}
+svg.iw{display:block}
 svg.i{fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
 
 /* settings, for the family member who sets the phone up: calm grouped lists, like the phone's own settings */
@@ -224,6 +248,7 @@ input:focus{outline:3px solid rgba(10,91,216,.5);outline-offset:1px}
   <section id="people" aria-label="Familie"></section>
   <section id="apps" aria-label="WhatsApp"></section>
   <section id="dock" class="none lg" data-blur="2" aria-label="Apps"></section>
+  <section id="tools" aria-label="Taschenlampe und alle Apps"></section>
 </main>
 
 <div id="person" class="view" role="dialog" aria-labelledby="pName">
@@ -231,6 +256,13 @@ input:focus{outline:3px solid rgba(10,91,216,.5);outline-offset:1px}
   <div id="pHead"><div class="av"></div><div id="pName"></div></div>
   <div id="acts"></div>
   <button class="back lg" id="pBack"><svg class="i" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Zurück</button>
+</div>
+
+<div id="drawer" class="view" role="dialog" aria-label="Alle Apps">
+  <div class="vbg"></div>
+  <h2>Alle Apps</h2>
+  <div id="dGrid"></div>
+  <button class="back lg" id="dBack"><svg class="i" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Zurück</button>
 </div>
 
 <div id="setup" class="view" role="dialog" aria-label="Einrichtung">
@@ -256,7 +288,9 @@ function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
 
 const ICON = {
-  wa: '<svg class="i" viewBox="0 0 24 24"><path d="M12 2.8a9.2 9.2 0 0 0-7.9 13.9L2.8 21.2l4.6-1.2A9.2 9.2 0 1 0 12 2.8z"/><path d="M8.6 8.2c.3-.6.7-.6 1-.6.4 0 .6 0 .8.6l.6 1.4c.1.3 0 .5-.2.7l-.5.6c.6 1.2 1.6 2.2 2.8 2.8l.6-.5c.2-.2.4-.3.7-.2l1.4.6c.6.2.6.4.6.8 0 .4-.1.8-.6 1.1-.6.4-1.4.6-2.3.3-2.4-.8-4.3-2.7-5.2-5.1-.3-.9-.2-1.8.3-2.5z"/></svg>',
+  // WhatsApp: a solid speech bubble with the handset cut out in the tile's green (handset: Material "call" icon, Apache 2.0)
+  wa: '<svg class="iw" viewBox="0 0 24 24"><path fill="#fff" d="M12 2.2a9.4 9.4 0 0 0-8.1 14.2L2.6 21.4l5.2-1.3A9.4 9.4 0 1 0 12 2.2z"/>' +
+    '<path fill="#0f7a3d" transform="translate(6.2 5.7) scale(.5)" d="M20 15.4c-1.2 0-2.4-.2-3.5-.6a1 1 0 0 0-1 .2l-1.6 2c-2.8-1.4-5.5-3.9-6.9-6.8l2-1.7c.3-.3.4-.7.2-1-.4-1.1-.6-2.3-.6-3.5 0-.6-.4-1-1-1H4.2C3.6 3 3 3.2 3 4c0 9.3 7.7 17 17 17 .7 0 1-.6 1-1.2v-3.4c0-.6-.4-1-1-1z"/></svg>',
   call: '<svg class="i" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>',
   sms: '<svg class="i" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M7 8h10M7 12h6"/></svg>'
 };
@@ -439,7 +473,8 @@ function makeMock() {
     appIcon: p => 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="28" fill="' + (p === 'cam' ? '#e8eaed' : '#ffcc33') + '"/><circle cx="50" cy="52" r="22" fill="#333"/></svg>'),
     findPhotos(j) { const face = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#9cc3e6"/><circle cx="50" cy="40" r="20" fill="#f1c7a5"/><path d="M14 100c4-26 20-36 36-36s32 10 36 36z" fill="#3d6b4f"/></svg>');
       setTimeout(() => JSON.parse(j).filter(x => x.id === 'p1').forEach(x => onContactPhoto(x.id, face)), 200); },
-    listApps() { setTimeout(() => onApps(JSON.stringify([{ pkg: 'cam', label: 'Kamera', icon: '' }, { pkg: 'gal', label: 'Galerie', icon: '' }, { pkg: 'sol', label: 'Großes Solitär', icon: '' }])), 300); },
+    listApps() { setTimeout(() => onApps(JSON.stringify(['Kamera', 'Galerie', 'Großes Solitär', 'Bunte Steine', 'Wetter', 'Uhr', 'Rechner', 'Kalender', 'Einstellungen', 'Telefon', 'Nachrichten', 'Chrome', 'YouTube', 'Radio'].map((l, i) => ({ pkg: 'app' + i, label: l, icon: this.appIcon(i % 2 ? 'cam' : 'x') })))), 200); },
+    hasTorch: () => true, torch(on) { setTimeout(() => onTorch(on), 50); return true; },
     pickContact() { setTimeout(() => onContactPicked(JSON.stringify({ name: 'Neuer Kontakt', number: '+49 30 1234567', photo: '' })), 200); },
     pickPhoto() { say('Foto wählen'); },
     isDefaultHome: () => false, openHomeSettings() { say('Startbildschirm wählen'); }, openDisplaySettings() { say('Anzeige'); },
@@ -455,7 +490,8 @@ function makeMock() {
 
 /* ---------- settings, kept on the phone ---------- */
 const DEF = { v: 1, people: [], apps: [], showWhatsApp: true, country: '49', speak: false, pin: '', names: false, bgPhone: true,
-  order: ['clock', 'people', 'whatsapp', 'apps'], locked: false };
+  order: ['clock', 'people', 'whatsapp', 'tools', 'apps'], locked: false,
+  drawer: true, allBtn: true, torch: true, hidden: [] };
 let C, firstRun = false;
 try { C = JSON.parse(A.loadConfig() || 'null'); } catch (e) { C = null; }
 if (!C || !C.v) { C = JSON.parse(JSON.stringify(DEF)); firstRun = true; } else C = Object.assign(JSON.parse(JSON.stringify(DEF)), C);
@@ -531,6 +567,7 @@ function renderHome() {
     holdable(b, open, () => appMenu(a, open));
     dock.append(b);
   }
+  renderTools();
   LG.scan();
   $('#empty').style.display = C.people.length || C.apps.length ? 'none' : 'block';
 }
@@ -556,13 +593,15 @@ function holdable(b, tap, hold) {
 }
 
 /** the held app: its full name, Öffnen, Deinstallieren (Android asks once more), Abbrechen */
-function appMenu(a, open) {
+function appMenu(a, open, fromList) {
   const icon = bigIcon(a.pkg) || a.icon;
   openDlg('<div class="menu">' + (icon ? '<img src="' + esc(icon) + '" alt="">' : '') + '<h2>' + esc(a.label) + '</h2>' +
     '<button class="btn pri" id="mOpen">Öffnen</button>' +
+    (fromList && !C.locked && !C.apps.some(x => x.pkg === a.pkg) ? '<button class="btn" id="mHome">Auf den Startbildschirm</button>' : '') +
     '<button class="btn danger" id="mDel">Deinstallieren</button>' +
     '<button class="btn" id="mNo">Abbrechen</button></div>');
   $('#mOpen').onclick = () => { closeDlg(); open(); };
+  if ($('#mHome')) $('#mHome').onclick = () => { C.apps.push({ pkg: a.pkg, label: a.label, icon: a.icon || '' }); save(); closeDlg(); closeDrawer(); renderHome(); toast(a.label + ' liegt jetzt auf dem Startbildschirm'); };
   $('#mDel').onclick = () => { closeDlg(); A.uninstallApp(a.pkg); };
   $('#mNo').onclick = closeDlg;
 }
@@ -696,14 +735,14 @@ function itemHTML(i, n, avHTML, title, sub, editable, fixed) {
 }
 
 /* the front page's blocks, in the order chosen in the settings */
-const BLOCKS = { clock: 'Uhrzeit, Datum und Akku', people: 'Familie', whatsapp: 'WhatsApp', apps: 'Apps' };
+const BLOCKS = { clock: 'Uhrzeit, Datum und Akku', people: 'Familie', whatsapp: 'WhatsApp', tools: 'Taschenlampe und „Alle Apps“', apps: 'Apps' };
 function fixOrder() {
   const o = (Array.isArray(C.order) ? C.order : []).filter(k => k in BLOCKS);
   for (const k of Object.keys(BLOCKS)) if (!o.includes(k)) o.push(k);
   C.order = [...new Set(o)];
 }
 function placeBlocks() {
-  const home = $('#home'), el = { clock: $('#top'), people: $('#people'), whatsapp: $('#apps'), apps: $('#dock') };
+  const home = $('#home'), el = { clock: $('#top'), people: $('#people'), whatsapp: $('#apps'), tools: $('#tools'), apps: $('#dock') };
   for (const k of C.order) home.append(el[k]);
   el.clock.after($('#empty'));
 }
@@ -727,6 +766,12 @@ function renderSetup() {
   });
   h += '</div><div class="row"><button class="btn pri" data-act="pick">+ Aus den Kontakten</button><button class="btn" data-act="manual">+ Von Hand eingeben</button></div>';
 
+  h += '<h3>Alle Apps und Taschenlampe</h3>';
+  h += '<label class="chk"><input type="checkbox" data-opt="drawer"' + (C.drawer ? ' checked' : '') + '> Von rechts nach links wischen öffnet alle Apps</label>';
+  h += '<label class="chk"><input type="checkbox" data-opt="allBtn"' + (C.allBtn ? ' checked' : '') + '> Knopf „Alle Apps“ auf dem Startbildschirm</label>';
+  if (A.hasTorch()) h += '<label class="chk"><input type="checkbox" data-opt="torch"' + (C.torch ? ' checked' : '') + '> Knopf „Taschenlampe“ (geht nach 15 Minuten von selbst aus)</label>';
+  h += '<div class="row"><button class="btn" data-act="hideApps">Apps in der Liste auswählen …</button></div>' +
+    '<p class="note" style="margin:0 6px">' + (C.hidden.length ? C.hidden.length + ' App' + (C.hidden.length > 1 ? 's sind' : ' ist') + ' ausgeblendet.' : 'Alle Apps werden gezeigt.') + '</p>';
   h += '<h3>Apps auf dem Startbildschirm</h3>';
   h += '<label class="chk"><input type="checkbox" data-opt="showWhatsApp"' + (C.showWhatsApp ? ' checked' : '') + '> Große WhatsApp-Kachel' +
     (A.hasWhatsApp() ? '' : ' <span class="note">(WhatsApp ist nicht installiert)</span>') + '</label><div data-list="apps">';
@@ -787,6 +832,7 @@ $('#setup').addEventListener('click', e => {
       if (A.hasContactPermission()) A.pickContact(); else { pendingPick = true; A.askPermissions(); } break;
     case 'manual': editPerson(null, {}); break;
     case 'addApp': appPicker(); break;
+    case 'hideApps': hideApps(); break;
     case 'perm': A.askPermissions(); break;
     case 'pin': openPin('set', v => { C.pin = v; save(); renderSetup(); toast('PIN gespeichert'); }); break;
     case 'nopin': C.pin = ''; save(); renderSetup(); break;
@@ -888,9 +934,13 @@ function appPicker() {
   $('#aClose').onclick = closeDlg;
   A.listApps();
 }
+let appsCache = null;
 window.onApps = function (json) {
-  const box = $('#appList'); if (!box) return;
   let list = []; try { list = JSON.parse(json); } catch (e) {}
+  appsCache = list;
+  if ($('#drawer').classList.contains('open')) fillDrawer();
+  if ($('#hideList')) fillHideList();
+  const box = $('#appList'); if (!box) return;
   box.textContent = '';
   for (const a of list) {
     const have = C.apps.some(x => x.pkg === a.pkg);
@@ -903,6 +953,90 @@ window.onApps = function (json) {
   }
   if (!list.length) box.textContent = 'Keine Apps gefunden.';
 };
+
+/* ---------- all apps: a swipe from right to left (or the "Alle Apps" button) ---------- */
+function visibleApps() { return (appsCache || []).filter(a => !C.hidden.includes(a.pkg)); }
+function openDrawer() {
+  if ($('#drawer').classList.contains('open')) return;
+  $('#drawer').classList.add('open'); $('#drawer').scrollTop = 0;
+  fillDrawer();
+  A.listApps();   // fresh, in case apps came or went
+  LG.scan($('#drawer'));
+}
+function closeDrawer() { $('#drawer').classList.remove('open'); }
+function fillDrawer() {
+  const g = $('#dGrid'); g.textContent = '';
+  if (!appsCache) { g.append(el('p', 'note', 'Wird geladen …')); return; }
+  for (const a of visibleApps()) {
+    const b = el('button', 'dapp'); b.setAttribute('aria-label', a.label);
+    if (a.icon) { const i = el('img'); i.src = a.icon; i.alt = ''; b.append(i); } else b.append(el('span', 'noimg', (a.label || '?')[0]));
+    b.append(el('span', null, a.label));
+    const open = () => launch(() => A.openApp(a.pkg), a.label + ' wird geöffnet …');
+    holdable(b, open, () => appMenu(a, open, true));
+    g.append(b);
+  }
+}
+$('#dBack').onclick = closeDrawer;
+
+// the swipe: right to left on the front page opens the list, left to right in the list closes it
+let sw = null, swallow = 0;
+document.addEventListener('pointerdown', e => { sw = { x: e.clientX, y: e.clientY, t: Date.now() }; }, true);
+document.addEventListener('pointerup', e => {
+  if (!sw) return;
+  const dx = e.clientX - sw.x, dy = e.clientY - sw.y, quick = Date.now() - sw.t < 700;
+  sw = null;
+  if (!quick || Math.abs(dx) < 80 || Math.abs(dy) > Math.abs(dx) * 0.6) return;
+  const drawer = $('#drawer').classList.contains('open');
+  const front = !document.querySelector('.view.open') && !$('#dlg').classList.contains('open');
+  if (dx < 0 && front && C.drawer) { swallow = Date.now(); openDrawer(); }
+  else if (dx > 0 && drawer && !$('#dlg').classList.contains('open')) { swallow = Date.now(); closeDrawer(); }
+}, true);
+// a swipe that started on a tile must not also open it
+document.addEventListener('click', e => { if (Date.now() - swallow < 400) { e.stopPropagation(); e.preventDefault(); } }, true);
+
+/* which apps the list shows (settings) */
+function hideApps() {
+  openDlg('<h2>Apps in der Liste</h2><p class="note">Nur angehakte Apps erscheinen bei „Alle Apps“.</p><div class="hidelist" id="hideList"><p>Wird geladen …</p></div>' +
+    '<div class="row" style="justify-content:flex-end"><button class="btn pri" id="hDone">Fertig</button></div>');
+  $('#hDone').onclick = () => { closeDlg(); renderSetup(); };
+  if (appsCache) fillHideList();
+  A.listApps();
+}
+function fillHideList() {
+  const box = $('#hideList'); if (!box || !appsCache) return;
+  box.textContent = '';
+  for (const a of appsCache) {
+    const l = el('label', 'chk'), c = el('input'); c.type = 'checkbox'; c.checked = !C.hidden.includes(a.pkg);
+    c.onchange = () => { C.hidden = C.hidden.filter(x => x !== a.pkg); if (!c.checked) C.hidden.push(a.pkg); save(); };
+    l.append(c);
+    if (a.icon) { const i = el('img'); i.src = a.icon; i.alt = ''; l.append(i); }
+    l.append(el('span', null, a.label));
+    box.append(l);
+  }
+}
+
+/* ---------- flashlight and the "Alle Apps" button ---------- */
+const ICON_TORCH = '<svg class="i" viewBox="0 0 24 24"><path d="M7 2h10v4l-2 4v11a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V10L7 6z"/><path d="M7 6h10M12 13v3"/></svg>';
+const ICON_GRID = '<svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>';
+let torchOn = false;
+function renderTools() {
+  const t = $('#tools'); t.textContent = '';
+  if (C.torch && A.hasTorch()) {
+    const b = el('button', 'pill lg' + (torchOn ? ' on' : '')); b.id = 'torchBtn';
+    b.setAttribute('aria-pressed', torchOn);
+    b.innerHTML = ICON_TORCH + '<span>' + (torchOn ? 'Licht aus' : 'Taschenlampe') + '</span>';
+    b.onclick = () => { if (navigator.vibrate) navigator.vibrate(30); if (!A.torch(!torchOn)) toast('Die Taschenlampe ließ sich nicht einschalten.'); };
+    t.append(b);
+  }
+  if (C.allBtn) {
+    const b = el('button', 'pill lg');
+    b.innerHTML = ICON_GRID + '<span>Alle Apps</span>';
+    b.onclick = openDrawer;
+    t.append(b);
+  }
+  t.classList.toggle('none', !t.children.length);
+}
+window.onTorch = function (on) { torchOn = !!on; renderTools(); LG.scan(); };
 
 /* ---------- messages ---------- */
 let toastT = 0;
@@ -918,11 +1052,12 @@ window.appBack = function () {
   else if ($('#pin').classList.contains('open')) closePin();
   else if ($('#setup').classList.contains('open')) closeSetup();
   else if (curPerson) closePerson();
+  else if ($('#drawer').classList.contains('open')) closeDrawer();
   return true;
 };
 /** Home (and leaving the screen): back to the front page; `all` closes the settings too */
 window.goHome = function (all) {
-  closePerson(); holdStop();
+  closePerson(); holdStop(); closeDrawer();
   if ($('#dlg .menu')) closeDlg();
   if (all) { closePin(); if ($('#setup').classList.contains('open')) closeSetup(); }
   window.scrollTo(0, 0);

@@ -3,8 +3,8 @@
      shipped inside the app; this is one activity that is the phone's Home app once chosen. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cc.polychrome.bighome"
-    android:versionCode="7"
-    android:versionName="1.6.0">
+    android:versionCode="8"
+    android:versionName="1.7.0">
 
     <!-- Android 7 and newer: covers the older Samsung phones -->
     <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="35" />
@@ -23,6 +23,7 @@
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
 
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.flash" android:required="false" />
 
     <!-- what the app may see on Android 11+: WhatsApp, the apps that can go on the home screen, the voice for reading aloud -->
     <queries>

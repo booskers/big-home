@@ -19,6 +19,9 @@ A simple home screen (Android launcher) for older people, in German (polite "Sie
   glass is tinted with light edges.
 - **Anordnung:** the order of the blocks (clock, family, WhatsApp, apps), the people and the apps can be changed with
   ▲ ▼ in the settings, then fixed with **Anordnung sperren**.
+- **Alle Apps:** a swipe from right to left (or the "Alle Apps" button) shows all apps as big icons with names;
+  the settings can hide apps from it or switch the swipe off. **Taschenlampe:** a flashlight button that switches
+  itself off after 15 minutes.
 - **A tap on a person** opens three big buttons: **WhatsApp** (opens the chat with that person), **Anrufen** (calls
   straight away once allowed) and **SMS**. A big "Zurück" button returns to the front page, and so does doing nothing
   for 90 seconds or coming back from a call.

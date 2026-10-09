@@ -20,6 +20,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ImageDecoder;
 import android.graphics.drawable.Drawable;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
+import android.os.Handler;
+import android.os.Looper;
 import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Build;
@@ -67,6 +71,11 @@ public class MainActivity extends Activity {
     BroadcastReceiver batteryRx;
     File cfg, bgFile;
     Updater up;
+    CameraManager cams;
+    String torchId;
+    volatile boolean torchOn;
+    final Handler main = new Handler(Looper.getMainLooper());
+    final Runnable torchOff = () -> setTorch(false);
     BroadcastReceiver screenOff;
     volatile boolean bgToPhone = true;
     float inT, inR, inB, inL;   // status bar, navigation bar, keyboard and notch, in CSS pixels
@@ -114,6 +123,35 @@ public class MainActivity extends Activity {
             @Override public void onReceive(Context c, Intent i) { up.check(false); }
         };
         registerReceiver(screenOff, new IntentFilter(Intent.ACTION_SCREEN_OFF));
+        findTorch();
+    }
+
+    /** the flashlight: the back camera's light, without opening the camera (no permission needed) */
+    void findTorch() {
+        try {
+            cams = getSystemService(CameraManager.class);
+            for (String id : cams.getCameraIdList()) {
+                CameraCharacteristics c = cams.getCameraCharacteristics(id);
+                Boolean flash = c.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
+                Integer facing = c.get(CameraCharacteristics.LENS_FACING);
+                if (Boolean.TRUE.equals(flash) && (torchId == null || (facing != null && facing == CameraCharacteristics.LENS_FACING_BACK))) torchId = id;
+            }
+            if (torchId == null) return;
+            cams.registerTorchCallback(new CameraManager.TorchCallback() {
+                @Override public void onTorchModeChanged(String id, boolean on) {
+                    if (!id.equals(torchId)) return;
+                    torchOn = on;
+                    main.removeCallbacks(torchOff);
+                    if (on) main.postDelayed(torchOff, 15 * 60 * 1000L);   // nobody has to remember to switch it off
+                    js("window.onTorch&&onTorch(" + on + ")");
+                }
+            }, main);
+        } catch (Exception e) { torchId = null; }
+    }
+
+    boolean setTorch(boolean on) {
+        if (torchId == null) return false;
+        try { cams.setTorchMode(torchId, on); return true; } catch (Exception e) { return false; }
     }
 
     /**
@@ -512,6 +550,9 @@ public class MainActivity extends Activity {
                 try { startActivityForResult(i, REQ_PHOTO); } catch (ActivityNotFoundException e) { /* no gallery */ }
             });
         }
+
+        @JavascriptInterface public boolean hasTorch() { return torchId != null; }
+        @JavascriptInterface public boolean torch(boolean on) { return setTorch(on); }
 
         @JavascriptInterface public String updateInfo() { return up.info(); }
         @JavascriptInterface public void checkUpdate() { up.check(true); }

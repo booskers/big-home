@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.7.0 (2026-10-09)
+
+- Alle Apps: a swipe from right to left (or the new "Alle Apps" button) opens all apps as big icons with their names;
+  apps can be hidden from that list in the settings, and the swipe can be switched off.
+- Taschenlampe: a big flashlight button that turns yellow while it's on and switches itself off after 15 minutes.
+- A clearer WhatsApp icon: a solid speech bubble with the handset cut out.
+- Holding an app in the list offers "Auf den Startbildschirm" (unless the layout is locked).
+
 ## 1.6.0 (2026-10-09)
 
 The first public release.

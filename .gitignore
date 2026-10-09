@@ -1,0 +1,5 @@
+# build output (the APK goes into GitHub releases, not the repository)
+android/build/
+android/dist/
+*.idsig
+.claude/

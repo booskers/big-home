@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Großer Start</title>
+<style>
+:root{
+  --it:0px; --ib:0px; --il:0px; --ir:0px;   /* status bar, navigation bar, sides: set by the app (setInsets) */
+  --ink:#1c1c1e; --sub:#3c3c43;
+  /* glass: tinted dark enough that white text stays readable on any wallpaper */
+  --glass:rgba(22,24,32,.38); --glass-strong:rgba(16,18,26,.48); --glass-light:rgba(255,255,255,.1);
+  --depth:0 0 #0000;   /* no drop shadows: liquid glass gets its depth from refraction and edge light */
+  --wa:#17904b; --wa2:#0b5e2f; --call:#2a64d6; --call2:#143a92; --sms:#c96214; --sms2:#8f4006;
+  --warn:#d92d3a; --hi:#ffd60a; --blue:#0a5bd8;
+  --r-xl:34px; --r-l:26px;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+/* Inter: the closest open font to Apple's SF Pro (which may only be used on Apple devices); it ships with the app */
+@font-face{font-family:'Inter';font-style:normal;font-weight:400 800;font-display:block;src:url(fonts/inter-latin.woff2) format('woff2');
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:'Inter';font-style:normal;font-weight:400 800;font-display:block;src:url(fonts/inter-latin-ext.woff2) format('woff2');
+  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:transparent;color:#fff;
+  font-family:Inter,"SF Pro Display",-apple-system,system-ui,Roboto,sans-serif;font-optical-sizing:auto;
+  font-feature-settings:'cv11','ss03';   /* single-storey a and rounder quotes, nearer to SF */
+  -webkit-font-smoothing:antialiased;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+body{overscroll-behavior:none}
+/* the phone's own wallpaper shows through; a soft dark veil at the top keeps the clock readable on any picture */
+body:before{content:"";position:fixed;left:0;right:0;top:0;height:65vh;z-index:-1;pointer-events:none;
+  background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.28) 50%,rgba(0,0,0,0))}
+/* a background picture of their own: shown in the page, so the glass can really bend it */
+#bg{position:fixed;top:0;left:0;right:0;bottom:0;z-index:-2;background:center/cover no-repeat;display:none}
+html.hasbg #bg{display:block;background-image:var(--bgimg)}
+/* in a browser there is no wallpaper: a stand-in picture */
+html.preview{background:radial-gradient(120% 80% at 20% 10%,#7aa3d6 0%,transparent 60%),
+  radial-gradient(90% 70% at 90% 80%,#e0a77a 0%,transparent 60%),linear-gradient(160deg,#3b5b8a,#6f8f86 50%,#b98a64) fixed}
+button{font:inherit;color:inherit;touch-action:manipulation;cursor:pointer;margin:0;transition:transform .18s var(--ease),filter .18s}
+button:active{transform:scale(.96);filter:brightness(1.08)}
+
+/* the glass edge: a bright rim and a soft sheen on the upper half, like light on curved glass */
+.tile,.app.wa,#dock,.act,.back,#bat,#pinPad button,#toast,.chip,#hold span{position:relative;isolation:isolate}
+.tile:after,.app.wa:after,#dock:after,.act:after,.back:after,#bat:after,#pinPad button:after,#toast:after,.chip:after{
+  content:"";position:absolute;top:0;left:0;right:0;bottom:0;border-radius:inherit;pointer-events:none;z-index:2;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.38),inset 0 0 0 .5px rgba(255,255,255,.22)}
+.tile:after{box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 0 0 .5px rgba(255,255,255,.18)}
+.lg:after{content:"";position:absolute;top:0;left:0;right:0;bottom:0;border-radius:inherit;pointer-events:none;z-index:2;box-shadow:none;
+  background:var(--lgspec,none) 0 0/100% 100% no-repeat;opacity:.35}
+
+/* the front page */
+#home{padding:calc(var(--it) + 8px) calc(var(--ir) + 16px) calc(var(--ib) + 28px) calc(var(--il) + 16px);max-width:680px;margin:0 auto}
+#top{text-align:center;padding:10px 0 20px;touch-action:none;position:relative;text-shadow:0 2px 14px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.6)}
+#date{font-size:min(7vw,32px);font-weight:600;letter-spacing:.01em;opacity:.97}
+#time{font-size:min(31vw,156px);font-weight:700;line-height:.95;letter-spacing:-.045em;font-variant-numeric:tabular-nums;margin-top:2px}
+#bat{display:inline-flex;align-items:center;gap:12px;margin-top:14px;font-size:min(6.6vw,28px);font-weight:700;padding:9px 20px 9px 16px;
+  border-radius:999px;background:var(--glass);box-shadow:var(--depth);text-shadow:none}
+#bat.low{background:linear-gradient(180deg,#e8434f,#b31b27)}
+#bat.charging .batico i{background:#5ee08a}
+.batico{width:52px;height:26px;border:3px solid currentColor;border-radius:8px;position:relative;padding:2px;flex:none}
+.batico:after{content:"";position:absolute;right:-8px;top:6px;width:4px;height:8px;background:currentColor;border-radius:0 3px 3px 0}
+.batico i{display:block;height:100%;background:currentColor;border-radius:4px}
+#hold{position:absolute;left:50%;top:50%;width:160px;height:160px;margin:-80px 0 0 -80px;border-radius:50%;display:none;
+  align-items:center;justify-content:center;text-align:center;font-size:18px;font-weight:700;color:var(--ink);pointer-events:none;z-index:5;text-shadow:none}
+#hold.on{display:flex}
+#hold span{background:rgba(255,255,255,.92);border-radius:50%;width:128px;height:128px;display:flex;align-items:center;justify-content:center;padding:8px}
+
+/* family: every tile a rounded square; a face fills it, otherwise initials on a rich colour, the name on a glass strip */
+#people{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#people.one{grid-template-columns:1fr}
+.tile{aspect-ratio:1/1;border:0;padding:0;border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--depth);background:#2a2d38;color:#fff;display:block;text-align:center}
+.av{background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex:none;
+  text-shadow:0 2px 8px rgba(0,0,0,.25);letter-spacing:-.02em}
+#people.one .tile{aspect-ratio:16/11}
+.tile .av{position:absolute;top:0;left:0;right:0;bottom:0;font-size:min(17vw,86px)}
+/* no photo: the initials sit high, the name has the lower part to itself (two lines fit) */
+.tile:not(.face) .av{align-items:flex-start;padding-top:11%;font-size:min(14vw,72px)}
+.tile .nm{position:absolute;left:8px;right:8px;bottom:8px;z-index:1;padding:8px 8px 9px;border-radius:calc(var(--r-xl) - 8px);
+  background:var(--glass-strong);font-size:min(6.6vw,30px);font-weight:700;line-height:1.1;overflow-wrap:anywhere}
+
+#apps{display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px}
+#apps:empty{display:none}
+.app.wa{display:flex;align-items:center;justify-content:center;gap:16px;border:0;border-radius:999px;min-height:112px;padding:12px 28px;
+  background:rgba(16,122,62,.8);color:#fff;font-size:min(9vw,40px);font-weight:700;box-shadow:var(--depth)}
+.app.wa svg{width:64px;height:64px;flex:none}
+/* other apps: really big icons on a glass shelf; holding one shows its name, Öffnen and Deinstallieren */
+#dock{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;padding:14px;border-radius:calc(var(--r-xl) + 8px);
+  background:var(--glass-light);box-shadow:var(--depth)}
+#dock.none{display:none}
+.icon{position:relative;z-index:3;background:none;border:0;padding:6px;display:flex;align-items:center;justify-content:center;touch-action:pan-y}
+.icon img{width:100%;max-width:160px;aspect-ratio:1/1}
+.icon .noimg{width:100%;max-width:160px;aspect-ratio:1/1;border-radius:28%;background:#fff;color:var(--ink);box-shadow:var(--depth);
+  display:flex;align-items:center;justify-content:center;font-size:min(16vw,80px);font-weight:700}
+#empty{background:var(--glass-strong);border-radius:var(--r-l);padding:20px;font-size:22px;line-height:1.45;text-align:center;display:none;box-shadow:var(--depth)}
+
+/* wide screens (an unfolded phone, a tablet) */
+@media (min-width:600px){
+  #home{max-width:1100px}
+  #people,#dock{grid-template-columns:repeat(3,1fr)}
+  #time{font-size:min(20vw,25vh,170px)}
+}
+@media (min-width:900px){ #people,#dock{grid-template-columns:repeat(4,1fr)} }
+
+/* one person: a contact card, then WhatsApp, call, SMS as big glass buttons */
+.view{position:fixed;top:0;left:0;right:0;bottom:0;z-index:100;background:rgba(8,10,18,.62);display:none;flex-direction:column;overflow:auto}
+.view.open{display:flex;animation:rise .32s var(--ease)}
+/* behind a person's buttons: the background picture, softly out of focus (the buttons' glass bends it);
+   with the phone's wallpaper instead, the front page is blurred */
+html:not(.hasbg) .view:not(#setup){-webkit-backdrop-filter:blur(28px) saturate(150%);backdrop-filter:blur(28px) saturate(150%)}
+html.hasbg .view:not(#setup){background:transparent}
+.vbg{position:fixed;top:-40px;left:-40px;right:-40px;bottom:-40px;z-index:-1;pointer-events:none;display:none;
+  background:var(--bgimg) center/cover no-repeat;filter:blur(26px) brightness(.5) saturate(1.3)}
+html.hasbg .vbg{display:block}
+@keyframes rise{from{opacity:0;transform:scale(1.03)}to{opacity:1;transform:none}}
+#person,#pin{padding:calc(var(--it) + 14px) calc(var(--ir) + 16px) calc(var(--ib) + 16px) calc(var(--il) + 16px)}
+#person{align-items:center}
+#person > :not(.vbg){width:100%;max-width:640px}
+#pHead{display:flex;flex-direction:column;align-items:center;gap:10px;margin:4px 0 18px;text-align:center}
+#pHead .av{width:min(36vw,160px);height:min(36vw,160px);border-radius:50%;font-size:min(16vw,72px);
+  box-shadow:0 0 0 1px rgba(255,255,255,.35),var(--depth)}
+#pName{font-size:min(10vw,48px);font-weight:700;line-height:1.05;letter-spacing:-.01em;overflow-wrap:anywhere}
+#acts{flex:1;display:flex;flex-direction:column;gap:14px;margin-bottom:14px}
+.act{flex:1;min-height:100px;max-height:170px;display:flex;align-items:center;gap:20px;border:0;border-radius:var(--r-xl);
+  padding:12px 22px 12px 14px;color:#fff;font-size:min(9vw,42px);font-weight:700;text-align:left;line-height:1.1;box-shadow:var(--depth)}
+.act .chip{width:min(19vw,86px);height:min(19vw,86px);border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;flex:none}
+.act svg{width:58%;height:58%}
+.act small{display:block;font-size:.5em;font-weight:600;margin-top:5px;opacity:.95}
+.act.wa{background:rgba(16,122,62,.72)}
+.act.call{background:rgba(30,80,190,.72)}
+.act.sms{background:rgba(176,80,12,.74)}
+.back{min-height:80px;border:0;border-radius:999px;background:var(--glass-light);color:#fff;font-size:min(8vw,34px);font-weight:700;
+  display:flex;align-items:center;justify-content:center;gap:12px;flex:none;box-shadow:var(--depth)}
+.back svg{width:40px;height:40px}
+svg.i{fill:none;stroke:currentColor;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+
+/* settings, for the family member who sets the phone up: calm grouped lists, like the phone's own settings */
+#setup{background:#f2f2f7;-webkit-backdrop-filter:none;backdrop-filter:none;padding-bottom:var(--ib);color:var(--ink);font-size:20px;line-height:1.4}
+#setup .bar{position:sticky;top:0;z-index:2;background:rgba(242,242,247,.86);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(60,60,67,.25);padding:calc(var(--it) + 10px) calc(var(--ir) + 16px) 10px calc(var(--il) + 16px);
+  display:flex;align-items:center;justify-content:space-between;gap:10px}
+#setup .bar h2{margin:0;font-size:30px;font-weight:700;letter-spacing:-.01em}
+#sBody{padding:4px calc(var(--ir) + 16px) 40px calc(var(--il) + 16px);max-width:760px;width:100%;margin:0 auto}
+#sBody h3{font-size:17px;text-transform:uppercase;letter-spacing:.04em;color:#4a4a50;font-weight:600;margin:28px 6px 8px}
+#sBody p{margin:6px 0 10px}
+.note{color:var(--sub);font-size:18px}
+.ok{background:#fff;border-radius:18px;padding:14px 16px;box-shadow:inset 4px 0 0 #1e9a52}
+.warnbox{background:#fff;border-radius:18px;padding:14px 16px;box-shadow:inset 4px 0 0 #c98a00}
+.btn{border:0;border-radius:999px;background:#fff;color:var(--blue);font-weight:600;font-size:19px;padding:10px 20px;min-height:52px;
+  box-shadow:0 0 0 1.5px rgba(10,91,216,.35)}
+.btn.pri{background:var(--blue);color:#fff;box-shadow:none}
+.btn.danger{background:var(--warn);color:#fff;box-shadow:none}
+.btn.sq{min-width:52px;padding:0 8px;color:var(--ink);box-shadow:0 0 0 1.5px rgba(60,60,67,.3)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.item{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;margin-bottom:8px;background:#fff}
+.item .av{width:58px;height:58px;border-radius:50%;font-size:24px}
+.item img{width:50px;height:50px;flex:none}
+.item .tx{flex:1;min-width:0;overflow-wrap:anywhere}
+.item b{display:block;font-size:21px;font-weight:600}
+.item span{color:var(--sub);font-size:17px;white-space:pre-line}
+.item .row{margin:0;gap:8px;width:100%;justify-content:flex-end}
+.item.compact{flex-wrap:nowrap;min-height:68px}
+.item.compact .row{width:auto}
+.lockrow{box-shadow:inset 4px 0 0 var(--blue)}
+.bgprev{width:110px;height:180px;border-radius:18px;background:#ccc center/cover no-repeat;flex:none}
+label.chk{display:flex;align-items:center;gap:14px;min-height:56px;background:#fff;border-radius:18px;padding:6px 16px;margin-bottom:8px}
+input[type=checkbox]{width:30px;height:30px;flex:none;accent-color:#1e9a52}
+input[type=text],input[type=tel]{font:inherit;font-size:22px;padding:12px 14px;border:1.5px solid rgba(60,60,67,.35);border-radius:14px;width:100%;
+  -webkit-user-select:text;user-select:text;background:#fff;color:var(--ink)}
+input:focus{outline:3px solid rgba(10,91,216,.5);outline-offset:1px}
+.field{margin:12px 0}
+.field label{display:block;font-weight:600;margin-bottom:6px}
+
+/* dialogs: a light frosted sheet */
+#dlg{position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  display:none;align-items:center;justify-content:center;padding:calc(var(--it) + 12px) 12px calc(var(--ib) + 12px)}
+#dlg.open{display:flex;animation:fade .2s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+#dlg .panel{background:rgba(248,248,252,.94);-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);
+  color:var(--ink);border-radius:30px;padding:20px;width:min(620px,100%);box-shadow:inset 0 1px 0 #fff;
+  max-height:calc(100vh - 24px - var(--it) - var(--ib));overflow:auto;font-size:20px;line-height:1.4;animation:pop .28s var(--ease)}
+@keyframes pop{from{transform:scale(.94);opacity:.4}to{transform:none;opacity:1}}
+#dlg h2{margin:0 0 12px;font-size:27px;font-weight:700}
+#dlg .item{background:none;padding:0}
+.applist button{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:#fff;border:0;border-radius:16px;
+  padding:10px 12px;margin-bottom:6px;font-size:20px;font-weight:500;color:var(--ink);min-height:64px}
+.applist img{width:46px;height:46px}
+/* the menu when an app is held */
+#dlg .menu{text-align:center}
+#dlg .menu img{width:124px;height:124px;margin:6px auto 8px;display:block}
+#dlg .menu h2{font-size:31px;line-height:1.15;margin:0 0 18px;overflow-wrap:anywhere}
+#dlg .menu .btn{display:block;width:100%;min-height:76px;font-size:27px;font-weight:700;margin-top:12px}
+
+/* PIN: round glass keys */
+#pin{z-index:250;align-items:center;justify-content:center}
+#pin h2{font-size:30px;font-weight:600;margin:0 0 10px;text-align:center}
+#pinDots{font-size:40px;letter-spacing:14px;height:60px;text-align:center}
+#pinDots.bad{animation:shake .4s;color:#ff8a8a}
+#pinPad{display:grid;grid-template-columns:repeat(3,auto);justify-content:center;gap:18px 26px}
+#pinPad button{width:84px;height:84px;border:0;border-radius:50%;background:var(--glass-light);font-size:36px;font-weight:500;color:#fff}
+#pinCancel{margin-top:22px;width:min(340px,100%)}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+
+#toast{position:fixed;left:50%;bottom:calc(var(--ib) + 26px);transform:translate(-50%,30px);opacity:0;pointer-events:none;z-index:1000;
+  background:rgba(20,22,30,.88);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);color:#fff;border-radius:999px;padding:16px 28px;
+  font-size:25px;font-weight:600;line-height:1.3;text-align:center;width:max-content;max-width:90vw;box-shadow:var(--depth);
+  transition:opacity .25s,transform .3s var(--ease)}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
+</style>
+</head>
+<body>
+<div id="bg"></div>
+
+<main id="home">
+  <section id="top" aria-label="Uhrzeit">
+    <div id="date"></div>
+    <div id="time">--:--</div>
+    <div id="bat" class="lg" role="status"><span class="batico"><i></i></span><span id="batTx"></span></div>
+    <div id="hold"><span>Einrichtung …</span></div>
+  </section>
+  <div id="empty">Noch niemand eingerichtet.<br>Zum Einrichten die Uhrzeit <b>4&nbsp;Sekunden</b> lang gedrückt halten.</div>
+  <section id="people" aria-label="Familie"></section>
+  <section id="apps" aria-label="WhatsApp"></section>
+  <section id="dock" class="none lg" data-blur="2" aria-label="Apps"></section>
+</main>
+
+<div id="person" class="view" role="dialog" aria-labelledby="pName">
+  <div class="vbg"></div>
+  <div id="pHead"><div class="av"></div><div id="pName"></div></div>
+  <div id="acts"></div>
+  <button class="back lg" id="pBack"><svg class="i" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Zurück</button>
+</div>
+
+<div id="setup" class="view" role="dialog" aria-label="Einrichtung">
+  <div class="bar"><h2>Einrichtung</h2><button class="btn pri" data-act="done">Fertig</button></div>
+  <div id="sBody"></div>
+</div>
+
+<div id="pin" class="view" role="dialog" aria-labelledby="pinTitle">
+  <div class="vbg"></div>
+  <h2 id="pinTitle">PIN eingeben</h2>
+  <div id="pinDots"></div>
+  <div id="pinPad"></div>
+  <button class="back lg" id="pinCancel">Abbrechen</button>
+</div>
+
+<div id="dlg"><div class="panel" id="dlgBody"></div></div>
+<div id="toast" class="lg" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+const $ = s => document.querySelector(s);
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
+
+const ICON = {
+  wa: '<svg class="i" viewBox="0 0 24 24"><path d="M12 2.8a9.2 9.2 0 0 0-7.9 13.9L2.8 21.2l4.6-1.2A9.2 9.2 0 1 0 12 2.8z"/><path d="M8.6 8.2c.3-.6.7-.6 1-.6.4 0 .6 0 .8.6l.6 1.4c.1.3 0 .5-.2.7l-.5.6c.6 1.2 1.6 2.2 2.8 2.8l.6-.5c.2-.2.4-.3.7-.2l1.4.6c.6.2.6.4.6.8 0 .4-.1.8-.6 1.1-.6.4-1.4.6-2.3.3-2.4-.8-4.3-2.7-5.2-5.1-.3-.9-.2-1.8.3-2.5z"/></svg>',
+  call: '<svg class="i" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>',
+  sms: '<svg class="i" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M7 8h10M7 12h6"/></svg>'
+};
+const DAYS = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+const MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+/* ---------- liquid glass ----------
+   Real refraction, as in https://kube.io/blog/liquid-glass-css-svg/ : every glass shape gets an SVG filter that bends
+   what is behind it (backdrop-filter: url(#…), which Android's WebView supports). The rim of the glass is a convex
+   squircle; light passing through it is refracted (Snell's law, glass 1.5), and how far each point moves is drawn
+   into a displacement map (red = x, green = y, 128 = none). A second picture is the specular rim, both as in kube's write-up.
+   Only the page's own content can be bent, so the background picture lives in the page (#bg). */
+const LG = (function () {
+  const NS = 'http://www.w3.org/2000/svg';
+  const RES = 0.5;                 // maps at half resolution; the filter stretches them smoothly
+  const ok = (() => { try { return CSS.supports('backdrop-filter', 'url(#x)') || CSS.supports('-webkit-backdrop-filter', 'url(#x)'); } catch (e) { return false; } })();
+  let defs = null, seq = 0;
+  const filters = new Map();       // "w|h|r|bezel" -> filter id
+  const sizeOf = new WeakMap();
+
+  // how far light is bent, from the outer edge (d = 0) to where the rim meets the flat middle (d = 1), largest = 1
+  const PROFILE = (() => {
+    const f = x => Math.pow(1 - Math.pow(1 - x, 4), 0.25);   // convex squircle
+    const out = []; let max = 0;
+    for (let i = 0; i < 128; i++) {
+      const d = Math.min(0.999, Math.max(0.001, i / 127)), e = 0.001;
+      const slope = (f(d + e) - f(d - e)) / (2 * e);
+      const t1 = Math.atan(slope), t2 = Math.asin(Math.sin(t1) / 1.5);
+      const m = (0.25 + f(d)) * Math.tan(t1 - t2);
+      out.push(m); if (m > max) max = m;
+    }
+    return out.map(m => m / max);
+  })();
+
+  // the outward normal at (px, py) and how far in from the edge it is, for a rounded rectangle w × h with corner r
+  function shape(px, py, w, h, r) {
+    const qx = Math.abs(px - w / 2) - (w / 2 - r), qy = Math.abs(py - h / 2) - (h / 2 - r);
+    const ox = Math.max(qx, 0), oy = Math.max(qy, 0), out = Math.hypot(ox, oy);
+    const t = -(out + Math.min(Math.max(qx, qy), 0) - r);
+    let nx, ny;
+    if (qx > 0 && qy > 0) { nx = ox / out; ny = oy / out; } else if (qx > qy) { nx = 1; ny = 0; } else { nx = 0; ny = 1; }
+    return { t, nx: px < w / 2 ? -nx : nx, ny: py < h / 2 ? -ny : ny };
+  }
+
+  /** the displacement map: inside the rim every point looks inward, by the refraction profile */
+  function dispMap(w, h, r, bz) {
+    const W = Math.max(2, Math.round(w * RES)), H = Math.max(2, Math.round(h * RES));
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const cx = c.getContext('2d'), D = cx.createImageData(W, H), dd = D.data;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const i = (y * W + x) * 4, s = shape((x + 0.5) / RES, (y + 0.5) / RES, w, h, r);
+      dd[i] = dd[i + 1] = dd[i + 2] = 128; dd[i + 3] = 255;
+      if (s.t <= 0 || s.t >= bz) continue;
+      const m = PROFILE[Math.round(s.t / bz * 127)];
+      dd[i] = 128 - s.nx * m * 127; dd[i + 1] = 128 - s.ny * m * 127;
+    }
+    cx.putImageData(D, 0, 0);
+    return c.toDataURL();
+  }
+
+  /** the specular map (kube's rim light): a fine ring at the very edge, bright where the edge faces the light
+      (upper left, -60°) and on the opposite side, fading out in between. Sharp, so drawn at twice the size. */
+  const LIGHT = { x: Math.cos(-120 * Math.PI / 180), y: Math.sin(-120 * Math.PI / 180) };
+  function specMap(w, h, r) {
+    const K = 3, W = Math.round(w * K), H = Math.round(h * K), ring = 0.5, soft = 0.7;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const cx = c.getContext('2d'), D = cx.createImageData(W, H), dd = D.data;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const s = shape((x + 0.5) / K, (y + 0.5) / K, w, h, r);
+      if (s.t <= 0 || s.t >= ring + soft) continue;
+      const edge = s.t < ring ? 1 : 1 - (s.t - ring) / soft;
+      const facing = Math.abs(s.nx * LIGHT.x + s.ny * LIGHT.y);
+      const i = (y * W + x) * 4;
+      dd[i] = dd[i + 1] = dd[i + 2] = 255;
+      dd[i + 3] = Math.round(150 * edge * (0.08 + 0.92 * Math.pow(facing, 2)));
+    }
+    cx.putImageData(D, 0, 0);
+    return c.toDataURL();
+  }
+
+  /* kube's filter chain: blur a touch → bend → a strongly saturated copy shows only on the rim (the colour of what is
+     behind, as real glass edges do) → a faded white rim on top */
+  function filterFor(w, h, r, bz, blur, spec) {
+    const key = [w, h, r, bz, blur].join('|');
+    if (filters.has(key)) return filters.get(key);
+    if (!defs) {
+      const svg = document.createElementNS(NS, 'svg');
+      svg.setAttribute('width', '0'); svg.setAttribute('height', '0'); svg.setAttribute('aria-hidden', 'true');
+      svg.style.position = 'absolute';
+      defs = document.createElementNS(NS, 'defs'); svg.append(defs); document.body.append(svg);
+    }
+    const disp = dispMap(w, h, r, bz), id = 'lg' + (++seq);
+    const f = document.createElementNS(NS, 'filter');
+    f.id = id;
+    for (const [k, v] of Object.entries({ filterUnits: 'userSpaceOnUse', primitiveUnits: 'userSpaceOnUse', x: 0, y: 0, width: w, height: h, 'color-interpolation-filters': 'sRGB' })) f.setAttribute(k, v);
+    const img = (href, res) => '<feImage href="' + href + '" x="0" y="0" width="' + w + '" height="' + h + '" preserveAspectRatio="none" result="' + res + '"/>';
+    f.innerHTML =
+      '<feGaussianBlur in="SourceGraphic" stdDeviation="' + blur + '" result="blurred_source"/>' +
+      img(disp, 'displacement_map') +
+      '<feDisplacementMap in="blurred_source" in2="displacement_map" scale="' + (bz * 2.3).toFixed(1) + '" xChannelSelector="R" yChannelSelector="G" result="displaced"/>' +
+      '<feColorMatrix in="displaced" type="saturate" values="6" result="displaced_saturated"/>' +
+      img(spec, 'specular_layer') +
+      '<feComposite in="displaced_saturated" in2="specular_layer" operator="in" result="specular_saturated"/>' +
+      '<feComponentTransfer in="specular_layer" result="specular_faded"><feFuncA type="linear" slope="0.15"/></feComponentTransfer>' +
+      '<feBlend in="specular_saturated" in2="displaced" mode="normal" result="withSaturation"/>' +
+      '<feBlend in="specular_faded" in2="withSaturation" mode="normal"/>';
+    defs.append(f);
+    filters.set(key, id);
+    return id;
+  }
+
+  const specs = new Map();
+  function apply(el) {
+    const w = Math.round(el.offsetWidth), h = Math.round(el.offsetHeight);
+    if (w < 8 || h < 8) return;
+    const key = w + 'x' + h;
+    if (sizeOf.get(el) === key) return;
+    sizeOf.set(el, key);
+    const cs = getComputedStyle(el);
+    const r = Math.round(Math.min(parseFloat(cs.borderTopLeftRadius) || 0, w / 2, h / 2));
+    const bz = Math.round(Math.max(8, Math.min(r, 40, Math.min(w, h) * 0.3)));   // a wide rim: strong bending at the edges
+    const blur = el.dataset.blur || 0.6;
+    const sk = w + '|' + h + '|' + r;
+    if (!specs.has(sk)) specs.set(sk, specMap(w, h, r));
+    const spec = specs.get(sk);
+    const id = filterFor(w, h, r, bz, blur, spec);
+    el.style.backdropFilter = el.style.webkitBackdropFilter = 'url(#' + id + ')';
+    // the same rim once more above the glass tint, so the tint never hides it
+    el.style.setProperty('--lgspec', 'url("' + spec + '")');
+  }
+
+  const ro = ok && window.ResizeObserver ? new ResizeObserver(list => list.forEach(e => apply(e.target))) : null;
+  return {
+    supported: ok,
+    /** make `el` glass (again after it changes size: done by itself) */
+    add(el) { if (!ro || el.dataset.lg) return; el.dataset.lg = '1'; ro.observe(el); apply(el); },
+    scan(root) { (root || document).querySelectorAll('.lg').forEach(el => this.add(el)); }
+  };
+})();
+
+/* ---------- the phone (window.Android), or a stand-in for testing in a browser ---------- */
+const A = window.Android || makeMock();
+if (!window.Android) document.documentElement.classList.add('preview');
+/** the app tells the page how much room the status bar, navigation bar (and keyboard) take, in CSS pixels */
+window.setInsets = function (t, r, b, l) {
+  const st = document.documentElement.style;
+  st.setProperty('--it', t + 'px'); st.setProperty('--ir', r + 'px'); st.setProperty('--ib', b + 'px'); st.setProperty('--il', l + 'px');
+  const f = document.activeElement;
+  if (f && f.tagName === 'INPUT') setTimeout(() => f.scrollIntoView({ block: 'center' }), 50);
+};
+document.addEventListener('focusin', e => { if (e.target.tagName === 'INPUT') setTimeout(() => e.target.scrollIntoView({ block: 'center' }), 300); });
+/** a stand-in background picture for the browser: sky, sun, hills and a lake */
+function mockPicture(alt) {
+  const c = document.createElement('canvas'); c.width = 600; c.height = 1200; const x = c.getContext('2d');
+  let g = x.createLinearGradient(0, 0, 0, 760); g.addColorStop(0, alt ? '#2b1d4f' : '#1f4f8f'); g.addColorStop(1, alt ? '#f2876b' : '#f3c47c');
+  x.fillStyle = g; x.fillRect(0, 0, 600, 1200);
+  x.fillStyle = '#fff6d8'; x.beginPath(); x.arc(420, 520, 80, 0, 7); x.fill();
+  x.fillStyle = '#2f5d4a'; x.beginPath(); x.moveTo(0, 760); x.quadraticCurveTo(160, 560, 330, 720); x.quadraticCurveTo(470, 600, 600, 700); x.lineTo(600, 1200); x.lineTo(0, 1200); x.fill();
+  x.fillStyle = '#1d3d31'; x.beginPath(); x.moveTo(0, 880); x.quadraticCurveTo(250, 760, 600, 900); x.lineTo(600, 1200); x.lineTo(0, 1200); x.fill();
+  x.fillStyle = '#3f86b8'; x.fillRect(0, 960, 600, 240);
+  x.strokeStyle = 'rgba(255,255,255,.5)'; x.lineWidth = 4;
+  for (let i = 0; i < 9; i++) { x.beginPath(); x.moveTo(40 + i * 60, 1000 + (i % 3) * 50); x.lineTo(80 + i * 60, 1000 + (i % 3) * 50); x.stroke(); }
+  for (let i = 0; i < 40; i++) { x.fillStyle = 'rgba(255,255,255,' + (0.3 + (i % 5) / 10) + ')'; x.beginPath(); x.arc((i * 137) % 600, (i * 71) % 420, 2 + (i % 3), 0, 7); x.fill(); }
+  return c.toDataURL('image/jpeg', 0.9);
+}
+function makeMock() {
+  const sample = { v: 1, showWhatsApp: true, country: '49', speak: false, pin: '', apps: [], people: [
+    { id: 'p1', name: 'Anna', number: '0171 2345678', photo: '', wa: true, call: true, sms: true },
+    { id: 'p2', name: 'Thomas', number: '+49 160 9876543', photo: '', wa: true, call: true, sms: true },
+    { id: 'p3', name: 'Enkelin Mia', number: '0152 1112223', photo: '', wa: true, call: true, sms: false }] };
+  const say = t => console.log('[Vorschau]', t);
+  return {
+    loadConfig() { try { return localStorage.getItem('bighome') || JSON.stringify(sample); } catch (e) { return JSON.stringify(sample); } },
+    saveConfig(j) { try { localStorage.setItem('bighome', j); } catch (e) {} },
+    battery: () => JSON.stringify({ level: 64, charging: false }),
+    hasWhatsApp: () => true,
+    whatsapp: n => (say('WhatsApp ' + n), true), call: n => (say('Anruf ' + n), true), sms: n => (say('SMS ' + n), true),
+    openWhatsApp: () => (say('WhatsApp'), true), openApp: p => (say('App ' + p), true),
+    whatsAppPackage: () => 'com.whatsapp', appInstalled: () => true, uninstallApp: p => say('Deinstallieren ' + p),
+    appIcon: p => 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="28" fill="' + (p === 'cam' ? '#e8eaed' : '#ffcc33') + '"/><circle cx="50" cy="52" r="22" fill="#333"/></svg>'),
+    findPhotos(j) { const face = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#9cc3e6"/><circle cx="50" cy="40" r="20" fill="#f1c7a5"/><path d="M14 100c4-26 20-36 36-36s32 10 36 36z" fill="#3d6b4f"/></svg>');
+      setTimeout(() => JSON.parse(j).filter(x => x.id === 'p1').forEach(x => onContactPhoto(x.id, face)), 200); },
+    listApps() { setTimeout(() => onApps(JSON.stringify([{ pkg: 'cam', label: 'Kamera', icon: '' }, { pkg: 'gal', label: 'Galerie', icon: '' }, { pkg: 'sol', label: 'Großes Solitär', icon: '' }])), 300); },
+    pickContact() { setTimeout(() => onContactPicked(JSON.stringify({ name: 'Neuer Kontakt', number: '+49 30 1234567', photo: '' })), 200); },
+    pickPhoto() { say('Foto wählen'); },
+    isDefaultHome: () => false, openHomeSettings() { say('Startbildschirm wählen'); }, openDisplaySettings() { say('Anzeige'); },
+    uninstall() { say('Deinstallieren'); }, speak(t) { say('spricht: ' + t); },
+    updateInfo: () => JSON.stringify({ current: '1.6.0', available: false, name: '', status: '', canInstall: false, quiet: true, auto: false }),
+    checkUpdate() { say('Updates suchen'); }, installUpdate() {}, autoUpdates() { say('Automatische Updates'); },
+    getBackground() { return mockPicture(); },
+    pickBackground() { setTimeout(() => onBackground(mockPicture(1)), 100); },
+    clearBackground() {},
+    hasCallPermission: () => false, hasContactPermission: () => false, askPermissions() { setTimeout(() => onPerms(), 100); }
+  };
+}
+
+/* ---------- settings, kept on the phone ---------- */
+const DEF = { v: 1, people: [], apps: [], showWhatsApp: true, country: '49', speak: false, pin: '', names: false, bgPhone: true,
+  order: ['clock', 'people', 'whatsapp', 'apps'], locked: false };
+let C, firstRun = false;
+try { C = JSON.parse(A.loadConfig() || 'null'); } catch (e) { C = null; }
+if (!C || !C.v) { C = JSON.parse(JSON.stringify(DEF)); firstRun = true; } else C = Object.assign(JSON.parse(JSON.stringify(DEF)), C);
+function save() { A.saveConfig(JSON.stringify(C)); }
+
+/* ---------- clock and battery ---------- */
+function tick() {
+  const d = new Date();
+  const t = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+  if ($('#time').textContent !== t) $('#time').textContent = t;
+  const ds = DAYS[d.getDay()] + ', ' + d.getDate() + '. ' + MONTHS[d.getMonth()];
+  if ($('#date').textContent !== ds) $('#date').textContent = ds;
+}
+window.onBattery = function (level, charging) {
+  const low = level <= 20 && !charging;
+  $('#bat').classList.toggle('low', low); $('#bat').classList.toggle('charging', !!charging);
+  $('#bat .batico i').style.width = Math.max(4, level) + '%';
+  $('#batTx').textContent = level + ' %' + (charging ? (level >= 100 ? ' – voll' : ' – lädt') : low ? ' – Bitte aufladen' : '');
+};
+try { const b = JSON.parse(A.battery()); onBattery(b.level, b.charging); } catch (e) {}
+tick(); setInterval(tick, 1000);
+
+/* ---------- pictures of people ---------- */
+const AVC = [['#3569b8', '#24498a'], ['#2a8460', '#1b6046'], ['#b8692e', '#8e4a1a'], ['#7a52ad', '#583986'], ['#b44558', '#8a2c3e'], ['#2a8191', '#1c5f6b']];
+function initials(name) {
+  const w = String(name || '?').trim().split(/\s+/);
+  return ((w[0] || '?')[0] + (w.length > 1 ? w[w.length - 1][0] : '')).toUpperCase();
+}
+function avatar(p, into) {
+  const e = into || el('div', 'av');
+  e.textContent = '';
+  if (p.photo) { e.style.backgroundImage = 'url("' + p.photo + '")'; e.style.backgroundColor = '#333'; }
+  else {
+    let h = 0; for (const ch of String(p.name)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    const c = AVC[h % AVC.length];
+    e.style.backgroundColor = c[1];
+    e.style.backgroundImage = 'linear-gradient(150deg,' + c[0] + ',' + c[1] + ')';
+    e.textContent = initials(p.name);
+  }
+  return e;
+}
+
+/* ---------- the front page ---------- */
+function renderHome() {
+  placeBlocks();
+  const ppl = $('#people'); ppl.textContent = '';
+  ppl.classList.toggle('one', C.people.length === 1);
+    for (const p of C.people) {
+    // with a photo the face is the tile; without one the letters and the name
+    const b = el('button', 'tile' + (p.photo ? ' face' : '')); b.setAttribute('aria-label', p.name);
+    b.append(avatar(p));
+    if (!p.photo || C.names) b.append(el('div', 'nm lg', p.name));
+    b.onclick = () => openPerson(p);
+    ppl.append(b);
+  }
+  const apps = $('#apps'); apps.textContent = '';
+  if (C.showWhatsApp && A.hasWhatsApp()) {
+    const b = el('button', 'app wa lg'); b.innerHTML = ICON.wa + '<span>WhatsApp</span>';
+    const open = () => launch(() => A.openWhatsApp(), 'WhatsApp wird geöffnet …');
+    holdable(b, open, () => appMenu({ pkg: A.whatsAppPackage(), label: 'WhatsApp' }, open));
+    apps.append(b);
+  }
+  // apps that were uninstalled meanwhile leave the front page by themselves
+  const kept = C.apps.filter(a => A.appInstalled(a.pkg));
+  if (kept.length !== C.apps.length) { C.apps = kept; save(); }
+  const dock = $('#dock'); dock.textContent = ''; dock.classList.toggle('none', !C.apps.length);
+  for (const a of C.apps) {
+    const b = el('button', 'icon'); b.setAttribute('aria-label', a.label);
+    const big = bigIcon(a.pkg) || a.icon;
+    if (big) { const i = el('img'); i.src = big; i.alt = ''; b.append(i); }
+    else b.append(el('span', 'noimg', (a.label || '?')[0]));
+    const open = () => launch(() => A.openApp(a.pkg), a.label + ' wird geöffnet …');
+    holdable(b, open, () => appMenu(a, open));
+    dock.append(b);
+  }
+  LG.scan();
+  $('#empty').style.display = C.people.length || C.apps.length ? 'none' : 'block';
+}
+
+/** big app icons come fresh from the phone (they change with app updates), kept only while the app runs */
+const iconCache = {};
+function bigIcon(pkg) {
+  if (!(pkg in iconCache)) { try { iconCache[pkg] = A.appIcon(pkg) || ''; } catch (e) { iconCache[pkg] = ''; } }
+  return iconCache[pkg];
+}
+
+/** a tap does `tap`; holding the finger down for a moment does `hold` instead. Scrolling cancels both. */
+function holdable(b, tap, hold) {
+  let t = 0, x = 0, y = 0, held = false;
+  const stop = () => { clearTimeout(t); t = 0; };
+  b.addEventListener('pointerdown', e => {
+    held = false; x = e.clientX; y = e.clientY; stop();
+    t = setTimeout(() => { t = 0; held = true; if (navigator.vibrate) navigator.vibrate(40); hold(); }, 600);
+  });
+  b.addEventListener('pointermove', e => { if (t && Math.hypot(e.clientX - x, e.clientY - y) > 14) stop(); });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(n => b.addEventListener(n, stop));
+  b.addEventListener('click', e => { if (held) { held = false; e.preventDefault(); return; } tap(); });
+}
+
+/** the held app: its full name, Öffnen, Deinstallieren (Android asks once more), Abbrechen */
+function appMenu(a, open) {
+  const icon = bigIcon(a.pkg) || a.icon;
+  openDlg('<div class="menu">' + (icon ? '<img src="' + esc(icon) + '" alt="">' : '') + '<h2>' + esc(a.label) + '</h2>' +
+    '<button class="btn pri" id="mOpen">Öffnen</button>' +
+    '<button class="btn danger" id="mDel">Deinstallieren</button>' +
+    '<button class="btn" id="mNo">Abbrechen</button></div>');
+  $('#mOpen').onclick = () => { closeDlg(); open(); };
+  $('#mDel').onclick = () => { closeDlg(); A.uninstallApp(a.pkg); };
+  $('#mNo').onclick = closeDlg;
+}
+
+let busyUntil = 0;
+/** one tap opens something; more taps while it opens are ignored */
+function launch(fn, msg, fail) {
+  const now = Date.now();
+  if (now < busyUntil) return;
+  busyUntil = now + 2000;
+  if (navigator.vibrate) navigator.vibrate(30);
+  toast(msg);
+  if (!fn()) toast(fail || 'Das hat leider nicht geklappt.');
+}
+
+/* ---------- one person ---------- */
+let curPerson = null, idleT = 0;
+function openPerson(p) {
+  curPerson = p;
+  avatar(p, $('#pHead .av'));
+  $('#pName').textContent = p.name;
+  const acts = $('#acts'); acts.textContent = '';
+  const add = (cls, icon, title, sub, fn) => {
+    const b = el('button', 'act lg ' + cls);
+    b.innerHTML = '<span class="chip">' + icon + '</span><span>' + esc(title) + '<small>' + esc(sub) + '</small></span>';
+    b.onclick = fn; acts.append(b);
+  };
+  if (p.wa !== false && A.hasWhatsApp())
+    add('wa', ICON.wa, 'WhatsApp', 'Nachricht oder Anruf', () => { say('WhatsApp mit ' + p.name);
+      launch(() => A.whatsapp(waNumber(p.number)), 'WhatsApp wird geöffnet …', 'WhatsApp ließ sich nicht öffnen.'); });
+  if (p.call !== false)
+    add('call', ICON.call, 'Anrufen', 'Telefon', () => { say('Anruf bei ' + p.name);
+      launch(() => A.call(p.number), p.name + ' wird angerufen …'); });
+  if (p.sms !== false)
+    add('sms', ICON.sms, 'SMS', 'Kurznachricht schreiben', () => { say('SMS an ' + p.name);
+      launch(() => A.sms(p.number), 'SMS wird geöffnet …'); });
+  $('#person').classList.add('open'); $('#person').scrollTop = 0;
+  LG.scan($('#person'));
+  say(p.name);
+  bumpIdle();
+}
+function closePerson() { $('#person').classList.remove('open'); curPerson = null; clearTimeout(idleT); }
+function bumpIdle() { clearTimeout(idleT); idleT = setTimeout(closePerson, 90000); }
+$('#person').addEventListener('pointerdown', () => curPerson && bumpIdle());
+$('#pBack').onclick = closePerson;
+function say(t) { if (C.speak) A.speak(t); }
+
+/** WhatsApp wants the number with its country code and nothing else: 0171 … → 49171 … */
+function waNumber(n) {
+  let s = String(n).replace(/[^\d+]/g, '');
+  if (s.startsWith('+')) return s.slice(1).replace(/\D/g, '');
+  if (s.startsWith('00')) return s.slice(2);
+  if (s.startsWith('0')) return String(C.country).replace(/\D/g, '') + s.slice(1);
+  return s;
+}
+
+/* ---------- the way into the settings: hold the clock for 4 seconds ---------- */
+const HOLD = 4000, SHOW = 700;
+let holdStart = 0, holdT = 0;
+function holdLoop() {
+  const t = performance.now() - holdStart, h = $('#hold');
+  if (t > SHOW) {
+    h.classList.add('on');
+    const f = Math.min(1, (t - SHOW) / (HOLD - SHOW));
+    h.style.background = 'conic-gradient(var(--hi) ' + (f * 360) + 'deg, rgba(255,255,255,.25) 0)';
+  }
+  if (t >= HOLD) { holdStop(); enterSetup(); }
+}
+function holdStop() { clearInterval(holdT); holdStart = 0; $('#hold').classList.remove('on'); }
+$('#top').addEventListener('pointerdown', e => { clearInterval(holdT); holdStart = performance.now(); holdT = setInterval(holdLoop, 40); });
+['pointerup', 'pointercancel', 'pointerleave'].forEach(n => $('#top').addEventListener(n, holdStop));
+$('#top').addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('contextmenu', e => { if (!e.target.closest('input')) e.preventDefault(); });
+
+function enterSetup() {
+  if (navigator.vibrate) navigator.vibrate(60);
+  if (C.pin) openPin('check', openSetup); else openSetup();
+}
+
+/* ---------- PIN pad ---------- */
+let pinMode = '', pinVal = '', pinFirst = '', pinDone = null;
+(function buildPad() {
+  const pad = $('#pinPad');
+  ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'].forEach(k => {
+    const b = el('button', 'lg', k);
+    if (!k) b.style.visibility = 'hidden';
+    if (k === '⌫') b.setAttribute('aria-label', 'Löschen');
+    b.onclick = () => pinKey(k);
+    pad.append(b);
+  });
+})();
+function openPin(mode, done) {
+  pinMode = mode; pinVal = ''; pinFirst = ''; pinDone = done;
+  $('#pinTitle').textContent = mode === 'check' ? 'PIN eingeben' : 'Neue PIN (4 Ziffern)';
+  pinShow(); $('#pin').classList.add('open');
+}
+function closePin() { $('#pin').classList.remove('open'); }
+function pinShow() { $('#pinDots').textContent = '●'.repeat(pinVal.length) + '○'.repeat(4 - pinVal.length); }
+function pinBad() { const d = $('#pinDots'); d.classList.remove('bad'); void d.offsetWidth; d.classList.add('bad'); if (navigator.vibrate) navigator.vibrate([60, 60, 60]); }
+function pinKey(k) {
+  if (k === '⌫') { pinVal = pinVal.slice(0, -1); return pinShow(); }
+  if (pinVal.length >= 4) return;
+  pinVal += k; pinShow();
+  if (pinVal.length < 4) return;
+  setTimeout(() => {
+    if (pinMode === 'check') {
+      if (pinVal === C.pin) { closePin(); pinDone(); } else { pinVal = ''; pinShow(); pinBad(); }
+    } else if (!pinFirst) {
+      pinFirst = pinVal; pinVal = ''; $('#pinTitle').textContent = 'PIN noch einmal'; pinShow();
+    } else if (pinVal === pinFirst) {
+      closePin(); pinDone(pinVal);
+    } else {
+      pinFirst = ''; pinVal = ''; $('#pinTitle').textContent = 'Nicht gleich – neue PIN'; pinShow(); pinBad();
+    }
+  }, 150);
+}
+$('#pinCancel').onclick = closePin;
+
+/* ---------- settings ---------- */
+function openSetup() { renderSetup(); $('#setup').classList.add('open'); $('#setup').scrollTop = 0; }
+function closeSetup() { $('#setup').classList.remove('open'); closeDlg(); renderHome(); }
+
+function itemHTML(i, n, avHTML, title, sub, editable, fixed) {
+  const move = !C.locked;
+  const btns = (move && i > 0 ? '<button class="btn sq" data-act="up" data-i="' + i + '" aria-label="Nach oben">▲</button>' : '') +
+    (move && i < n - 1 ? '<button class="btn sq" data-act="down" data-i="' + i + '" aria-label="Nach unten">▼</button>' : '') +
+    (editable ? '<button class="btn" data-act="edit" data-i="' + i + '">Ändern</button>' : '') +
+    (fixed ? '' : '<button class="btn sq" data-act="del" data-i="' + i + '" aria-label="Entfernen">✕</button>');
+  return '<div class="item' + (fixed ? ' compact' : '') + '">' + avHTML + '<div class="tx"><b>' + esc(title) + '</b>' + (sub ? '<span>' + esc(sub) + '</span>' : '') + '</div>' +
+    (btns ? '<div class="row">' + btns + '</div>' : '') + '</div>';
+}
+
+/* the front page's blocks, in the order chosen in the settings */
+const BLOCKS = { clock: 'Uhrzeit, Datum und Akku', people: 'Familie', whatsapp: 'WhatsApp', apps: 'Apps' };
+function fixOrder() {
+  const o = (Array.isArray(C.order) ? C.order : []).filter(k => k in BLOCKS);
+  for (const k of Object.keys(BLOCKS)) if (!o.includes(k)) o.push(k);
+  C.order = [...new Set(o)];
+}
+function placeBlocks() {
+  const home = $('#home'), el = { clock: $('#top'), people: $('#people'), whatsapp: $('#apps'), apps: $('#dock') };
+  for (const k of C.order) home.append(el[k]);
+  el.clock.after($('#empty'));
+}
+
+function renderSetup() {
+  const isHome = A.isDefaultHome();
+  let h = '';
+  h += isHome ? '<p class="ok">✓ „Großer Start“ ist der Startbildschirm. Die Home-Taste führt immer hierher zurück.</p>'
+    : '<div class="warnbox"><p style="margin-top:0"><b>Noch nicht der Startbildschirm.</b> Erst danach führt die Home-Taste immer hierher zurück.</p>' +
+      '<button class="btn pri" data-act="home">Als Startbildschirm festlegen</button></div>';
+
+  h += '<h3>Anordnung</h3><label class="chk lockrow"><input type="checkbox" data-opt="locked"' + (C.locked ? ' checked' : '') + '> <span><b>Anordnung sperren</b><br><span class="note">' +
+    (C.locked ? 'Nichts lässt sich verschieben. Zum Ändern hier entsperren.' : 'Mit ▲ ▼ die Blöcke, Personen und Apps ordnen, dann sperren.') + '</span></span></label>';
+  h += '<p class="note" style="margin:10px 6px 6px">Reihenfolge auf dem Startbildschirm, von oben nach unten:</p><div data-list="order">';
+  C.order.forEach((k, i) => { h += itemHTML(i, C.order.length, '', BLOCKS[k], '', false, true); });
+  h += '</div>';
+  h += '<h3>Familie</h3><div data-list="people">';
+  C.people.forEach((p, i) => {
+    const sub = [p.number, [p.wa !== false && 'WhatsApp', p.call !== false && 'Anruf', p.sms !== false && 'SMS'].filter(Boolean).join(' · ')].join('\n');
+    h += itemHTML(i, C.people.length, '<div class="av" data-av="' + i + '"></div>', p.name, sub, true);
+  });
+  h += '</div><div class="row"><button class="btn pri" data-act="pick">+ Aus den Kontakten</button><button class="btn" data-act="manual">+ Von Hand eingeben</button></div>';
+
+  h += '<h3>Apps auf dem Startbildschirm</h3>';
+  h += '<label class="chk"><input type="checkbox" data-opt="showWhatsApp"' + (C.showWhatsApp ? ' checked' : '') + '> Große WhatsApp-Kachel' +
+    (A.hasWhatsApp() ? '' : ' <span class="note">(WhatsApp ist nicht installiert)</span>') + '</label><div data-list="apps">';
+  C.apps.forEach((a, i) => { h += itemHTML(i, C.apps.length, a.icon ? '<img src="' + esc(a.icon) + '" alt="">' : '', a.label, '', false); });
+  h += '</div><div class="row"><button class="btn" data-act="addApp">+ App hinzufügen</button></div>';
+
+  h += '<h3>Einstellungen</h3>';
+  h += '<div class="field"><label for="cc">Ländervorwahl für WhatsApp</label><div class="row" style="flex-wrap:nowrap">+<input type="tel" id="cc" value="' + esc(C.country) + '" style="max-width:120px"></div>' +
+    '<p class="note">Damit aus 0171 … für WhatsApp +49 171 … wird. Deutschland 49, Österreich 43, Schweiz 41.</p></div>';
+  h += '<label class="chk"><input type="checkbox" data-opt="names"' + (C.names ? ' checked' : '') + '> Namen auch unter den Fotos zeigen</label>';
+  h += '<label class="chk"><input type="checkbox" data-opt="speak"' + (C.speak ? ' checked' : '') + '> Namen und Tasten vorlesen</label>';
+  h += A.hasCallPermission() ? '<p class="ok">✓ Ein Tipp auf „Anrufen“ ruft sofort an.</p>'
+    : '<p class="warnbox">Ein Tipp auf „Anrufen“ zeigt jetzt erst die Telefon-App, dort muss man noch einmal auf den Hörer tippen.<br><button class="btn" data-act="perm" style="margin-top:8px">Sofort anrufen erlauben</button></p>';
+  h += '<p><b>PIN für die Einrichtung:</b> ' + (C.pin ? 'eingeschaltet' : 'keine') + '</p><div class="row">' +
+    '<button class="btn" data-act="pin">' + (C.pin ? 'PIN ändern' : 'PIN festlegen') + '</button>' +
+    (C.pin ? '<button class="btn" data-act="nopin">PIN entfernen</button>' : '') + '</div>';
+  h += '<p class="note">Die Einrichtung öffnet sich, wenn man die Uhrzeit 4 Sekunden lang gedrückt hält.</p>';
+
+  h += '<h3>Hintergrund</h3><div class="item"><div class="bgprev" id="bgPrev"></div><div class="tx">' +
+    (bgUrl ? '<b>Eigenes Foto</b><span>Das Glas der Kacheln bricht das Bild wie echtes Glas.</span>'
+      : '<b>Hintergrund des Handys</b><span>Für den echten Glaseffekt ein eigenes Foto wählen: Android lässt Apps den Handy-Hintergrund nicht lesen.</span>') +
+    '</div></div><div class="row"><button class="btn pri" data-act="bg">Foto als Hintergrund wählen</button>' +
+    (bgUrl ? '<button class="btn" data-act="nobg">Handy-Hintergrund verwenden</button>' : '') + '</div>' +
+    '<label class="chk"><input type="checkbox" data-opt="bgPhone"' + (C.bgPhone !== false ? ' checked' : '') + '> Das Foto auch als Hintergrund des Handys setzen</label>';
+  h += '<h3>Telefon</h3><div class="row"><button class="btn" data-act="display">Schrift und Anzeige größer stellen</button></div>' +
+    '<p class="note">Das macht auch WhatsApp und die anderen Apps besser lesbar.</p>';
+
+  h += updatesHTML();
+  h += '<h3>Großer Start entfernen</h3>' +
+    '<p class="note">Erst den alten Startbildschirm wieder wählen, dann deinstallieren. Es geht auch ohne PIN: Android-Einstellungen → Apps → Großer Start → Deinstallieren.</p>' +
+    '<div class="row"><button class="btn" data-act="home2">Anderen Startbildschirm wählen</button>' +
+    '<button class="btn danger" data-act="uninstall">Großer Start deinstallieren</button></div>';
+
+  $('#sBody').innerHTML = h;
+  $('#sBody').querySelectorAll('[data-av]').forEach(e => avatar(C.people[+e.dataset.av], e));
+  if (bgUrl) $('#bgPrev').style.backgroundImage = 'url("' + bgUrl + '")';
+  $('#cc').onchange = e => { C.country = e.target.value.replace(/\D/g, '') || '49'; e.target.value = C.country; save(); };
+}
+
+$('#setup').addEventListener('change', e => {
+  const o = e.target.dataset && e.target.dataset.opt;
+  if (o) { C[o] = e.target.checked; save(); renderHome(); if (o === 'locked') renderSetup(); }
+});
+$('#setup').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const i = +b.dataset.i, listEl = b.closest('[data-list]'), list = listEl ? C[listEl.dataset.list] : null;
+  const move = d => { if (C.locked) return; const [x] = list.splice(i, 1); list.splice(i + d, 0, x); save(); renderSetup(); renderHome(); };
+  switch (b.dataset.act) {
+    case 'done': closeSetup(); break;
+    case 'home': case 'home2': A.openHomeSettings(); break;
+    case 'up': move(-1); break;
+    case 'down': move(1); break;
+    case 'edit': editPerson(C.people[i]); break;
+    case 'del':
+      confirmDlg((listEl.dataset.list === 'people' ? C.people[i].name : C.apps[i].label) + ' vom Startbildschirm entfernen?', 'Entfernen',
+        () => { list.splice(i, 1); save(); renderSetup(); renderHome(); }, true); break;
+    case 'pick':
+      if (A.hasContactPermission()) A.pickContact(); else { pendingPick = true; A.askPermissions(); } break;
+    case 'manual': editPerson(null, {}); break;
+    case 'addApp': appPicker(); break;
+    case 'perm': A.askPermissions(); break;
+    case 'pin': openPin('set', v => { C.pin = v; save(); renderSetup(); toast('PIN gespeichert'); }); break;
+    case 'nopin': C.pin = ''; save(); renderSetup(); break;
+    case 'display': A.openDisplaySettings(); break;
+    case 'auto': A.autoUpdates(); break;
+    case 'upcheck': A.checkUpdate(); break;
+    case 'upnow': A.installUpdate(); break;
+    case 'bg': A.pickBackground(C.bgPhone !== false); break;
+    case 'nobg': A.clearBackground(); setBackground(''); renderSetup(); break;
+    case 'uninstall':
+      confirmDlg('„Großer Start“ wirklich deinstallieren? Die eingerichteten Personen gehen dabei verloren. Android fragt danach noch einmal nach.',
+        'Deinstallieren', () => A.uninstall(), true); break;
+  }
+});
+
+let pendingPick = false;
+window.onPerms = function () {
+  findPhotos();
+  if (pendingPick) { pendingPick = false; A.pickContact(); }
+  if ($('#setup').classList.contains('open')) renderSetup();
+};
+window.onContactPicked = function (json) {
+  if (!json) return;
+  try { const c = JSON.parse(json); editPerson(null, c); } catch (e) {}
+};
+/** when the app comes back to the front: the Home setting may have changed */
+window.onResumed = function () { renderHome(); if ($('#setup').classList.contains('open') && !$('#dlg').classList.contains('open')) renderSetup(); };
+
+/* ---------- updates: they come from GitHub and install themselves while the screen is off ---------- */
+function updateState() { try { return JSON.parse(A.updateInfo()); } catch (e) { return {}; } }
+function updatesHTML() {
+  const u = updateState();
+  let h = '<h3>Updates</h3>';
+  h += '<p class="note" style="margin:0 6px 8px">Version ' + esc(u.current || '?') + '. Neue Versionen kommen von github.com/booskers/big-home.</p>';
+  if (u.auto) h += '<p class="ok">✓ Automatische Updates sind eingeschaltet. Sie installieren sich still, während der Bildschirm aus ist. Niemand muss etwas tun.</p>';
+  else if (u.quiet) h += '<div class="warnbox"><p style="margin-top:0"><b>Automatische Updates einschalten</b> (einmalig). Android fragt dabei einmal nach. ' +
+    (u.canInstall ? '' : 'Vorher „Aus dieser Quelle zulassen“ einschalten und zurückkommen. ') +
+    'Danach kommen Updates still, ohne Fragen.</p><button class="btn pri" data-act="auto">Automatische Updates einschalten</button></div>';
+  else h += '<p class="warnbox">Auf diesem Handy (Android 11 oder älter) muss jedes Update einmal bestätigt werden. Es wartet dann hier.</p>';
+  const st = { checking: 'Suche nach Updates …', downloading: 'Update wird geladen …', offline: 'Keine Verbindung. Später noch einmal versuchen.', failed: 'Das Update hat nicht geklappt.' }[u.status];
+  if (st) h += '<p class="note" style="margin:8px 6px">' + st + '</p>';
+  h += '<div class="row">';
+  if (u.available) h += '<button class="btn pri" data-act="upnow">Version ' + esc(u.name) + ' jetzt installieren</button>';
+  h += '<button class="btn" data-act="upcheck">Nach Updates suchen</button></div>';
+  return h;
+}
+window.onUpdate = function () {
+  if ($('#setup').classList.contains('open') && !$('#dlg').classList.contains('open')) renderSetup();
+};
+
+/* ---------- dialogs ---------- */
+function openDlg(html) { $('#dlgBody').innerHTML = html; $('#dlg').classList.add('open'); $('#dlgBody').scrollTop = 0; }
+function closeDlg() { $('#dlg').classList.remove('open'); editing = null; }
+function confirmDlg(text, ok, fn, danger) {
+  openDlg('<p style="font-size:22px;margin-top:0">' + esc(text) + '</p><div class="row" style="justify-content:flex-end">' +
+    '<button class="btn" id="dNo">Abbrechen</button><button class="btn ' + (danger ? 'danger' : 'pri') + '" id="dOk">' + esc(ok) + '</button></div>');
+  $('#dNo').onclick = closeDlg;
+  $('#dOk').onclick = () => { closeDlg(); fn(); };
+}
+
+let editing = null;
+function editPerson(p, pre) {
+  editing = p ? Object.assign({}, p) : Object.assign({ id: 'p' + Date.now(), name: '', number: '', photo: '', wa: true, call: true, sms: true }, pre || {});
+  const isNew = !p;
+  openDlg('<h2>' + (isNew ? 'Person hinzufügen' : 'Person ändern') + '</h2>' +
+    '<div class="item" style="border:0;padding:0;background:none"><div class="av" id="eAv" style="width:96px;height:96px;font-size:40px"></div>' +
+    '<div class="row"><button class="btn" id="ePhoto">Foto wählen</button><button class="btn" id="eNoPhoto">Kein Foto</button></div></div>' +
+    '<div class="field"><label for="eName">Name (so wie er auf der Kachel stehen soll)</label><input type="text" id="eName" value="' + esc(editing.name) + '"></div>' +
+    '<div class="field"><label for="eNum">Telefonnummer</label><input type="tel" id="eNum" value="' + esc(editing.number) + '"></div>' +
+    '<label class="chk"><input type="checkbox" id="eWa"' + (editing.wa !== false ? ' checked' : '') + '> WhatsApp</label>' +
+    '<label class="chk"><input type="checkbox" id="eCall"' + (editing.call !== false ? ' checked' : '') + '> Anrufen</label>' +
+    '<label class="chk"><input type="checkbox" id="eSms"' + (editing.sms !== false ? ' checked' : '') + '> SMS</label>' +
+    '<p id="eErr" style="color:var(--warn);font-weight:700;min-height:1em;margin:4px 0"></p>' +
+    '<div class="row" style="justify-content:flex-end"><button class="btn" id="eCancel">Abbrechen</button><button class="btn pri" id="eSave">Speichern</button></div>');
+  const draw = () => avatar(Object.assign({}, editing, { name: $('#eName').value || '?' }), $('#eAv'));
+  draw();
+  $('#eName').oninput = draw;
+  $('#ePhoto').onclick = () => A.pickPhoto();
+  $('#eNoPhoto').onclick = () => { editing.photo = ''; editing.noPhoto = true; draw(); };
+  $('#eCancel').onclick = closeDlg;
+  $('#eSave').onclick = () => {
+    const name = $('#eName').value.trim(), num = $('#eNum').value.trim();
+    if (!name) return ($('#eErr').textContent = 'Bitte einen Namen eingeben.');
+    if (num.replace(/\D/g, '').length < 3) return ($('#eErr').textContent = 'Bitte eine Telefonnummer eingeben.');
+    Object.assign(editing, { name, number: num, wa: $('#eWa').checked, call: $('#eCall').checked, sms: $('#eSms').checked });
+    const at = C.people.findIndex(x => x.id === editing.id);
+    if (at >= 0) C.people[at] = editing; else C.people.push(editing);
+    save(); closeDlg(); renderSetup(); renderHome(); findPhotos();
+  };
+}
+window.onPhotoPicked = function (url) {
+  if (!editing || !url) return;
+  editing.photo = url; editing.noPhoto = false;
+  avatar(Object.assign({}, editing, { name: $('#eName').value || '?' }), $('#eAv'));
+};
+
+function appPicker() {
+  openDlg('<h2>App hinzufügen</h2><div class="applist" id="appList"><p>Wird geladen …</p></div><div class="row" style="justify-content:flex-end"><button class="btn" id="aClose">Schließen</button></div>');
+  $('#aClose').onclick = closeDlg;
+  A.listApps();
+}
+window.onApps = function (json) {
+  const box = $('#appList'); if (!box) return;
+  let list = []; try { list = JSON.parse(json); } catch (e) {}
+  box.textContent = '';
+  for (const a of list) {
+    const have = C.apps.some(x => x.pkg === a.pkg);
+    const b = el('button');
+    if (a.icon) { const i = el('img'); i.src = a.icon; i.alt = ''; b.append(i); }
+    b.append(el('span', null, a.label + (have ? ' ✓' : '')));
+    b.disabled = have;
+    b.onclick = () => { C.apps.push(a); save(); closeDlg(); renderSetup(); renderHome(); };
+    box.append(b);
+  }
+  if (!list.length) box.textContent = 'Keine Apps gefunden.';
+};
+
+/* ---------- messages ---------- */
+let toastT = 0;
+function toast(t) {
+  const e = $('#toast'); e.textContent = t; e.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => e.classList.remove('show'), 2600);
+}
+
+/* ---------- Back and Home (called by the app) ---------- */
+/** Back closes the top-most window. On the front page it does nothing, so nobody can leave it by accident. */
+window.appBack = function () {
+  if ($('#dlg').classList.contains('open')) closeDlg();
+  else if ($('#pin').classList.contains('open')) closePin();
+  else if ($('#setup').classList.contains('open')) closeSetup();
+  else if (curPerson) closePerson();
+  return true;
+};
+/** Home (and leaving the screen): back to the front page; `all` closes the settings too */
+window.goHome = function (all) {
+  closePerson(); holdStop();
+  if ($('#dlg .menu')) closeDlg();
+  if (all) { closePin(); if ($('#setup').classList.contains('open')) closeSetup(); }
+  window.scrollTo(0, 0);
+};
+
+/** people without a photo get the one from their contact, found by phone number (unless "Kein Foto" was chosen) */
+function findPhotos() {
+  const need = C.people.filter(p => !p.photo && !p.noPhoto).map(p => ({ id: p.id, number: p.number }));
+  if (need.length) A.findPhotos(JSON.stringify(need));
+}
+window.onContactPhoto = function (id, url) {
+  const p = C.people.find(x => x.id === id);
+  if (!p || p.photo || p.noPhoto || !url) return;
+  p.photo = url; save(); renderHome();
+  if ($('#setup').classList.contains('open') && !$('#dlg').classList.contains('open')) renderSetup();
+};
+
+/* the background picture (kept by the app as a file; '' = the phone's own wallpaper shows through) */
+let bgUrl = '';
+function setBackground(url) {
+  bgUrl = url || '';
+  document.documentElement.classList.toggle('hasbg', !!bgUrl);
+  document.documentElement.style.setProperty('--bgimg', bgUrl ? 'url("' + bgUrl + '")' : 'none');
+}
+window.onBackground = function (url) {
+  setBackground(url);
+  if ($('#setup').classList.contains('open')) renderSetup();
+  toast('Hintergrund gespeichert');
+};
+try { setBackground(A.getBackground()); } catch (e) {}
+
+fixOrder();
+renderHome();
+findPhotos();
+LG.scan();
+if (firstRun) { save(); openSetup(); }
+</script>
+</body>
+</html>
